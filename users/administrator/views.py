@@ -1,23 +1,30 @@
+# Rest Framework
 from rest_framework_simplejwt.views import TokenObtainPairView
-from users.administrator.serializers import ResetCodeSerializer, ForgotPasswordSerializer, MyTokenObtainPairSerializer, RegisterSerializer
 from rest_framework.decorators import api_view, permission_classes
+from rest_framework.serializers import ValidationError
 from rest_framework.response import Response
 from rest_framework import status, permissions
-from rest_framework.serializers import ValidationError
+
+
+# Django 
+from django.shortcuts import get_object_or_404
 from django.contrib.auth import get_user_model
 from django.core.mail import send_mail
 from django.conf import settings
+
+# Library Python
 import random 
 import string
-from django.shortcuts import get_object_or_404
 
+# Customize
+from users.administrator.serializers import ProfileSerializer, ResetCodeSerializer, ForgotPasswordSerializer, MyTokenObtainPairSerializer, RegisterSerializer
 from users.models import ResetCode 
+from bases import errors
 
-# Login and Refresh Token
+
 class MyTokenObtainPairView(TokenObtainPairView):
     serializer_class = MyTokenObtainPairSerializer
 
-# Registering user
 @api_view(["POST"])
 def register(request):
     data = request.data
@@ -26,9 +33,9 @@ def register(request):
     except:
         pass
     if user:
-        raise ValidationError({"error" : "This email have already exists! Please choose another"})
+        raise ValidationError(errors.get_error(errors.EMAIL_EXSITS))
     if data["password"] != data["password_confirm"]:
-        raise ValidationError("Both password and confirm was not same! Please check it again")
+        raise ValidationError(errors.get_error(errors.PASSWORD_CONFIRM))
     serializer = RegisterSerializer(data=data)
     serializer.is_valid(raise_exception=True)
     user = get_user_model().objects.create_user(**serializer.validated_data)
@@ -43,7 +50,7 @@ def forgot_password(request):
         user = get_user_model().objects.get(email=email)
         serializer = ForgotPasswordSerializer(user)
     except get_user_model().DoesNotExists:
-        raise ValidationError("Haven't exists user follow this email! Please check them again")
+        raise ValidationError(errors.get_error(errors.EMAIL_NOT_EXISTS))
     subject = "Cold Storage - Forgot Password Services"
     receivers = [ email, ]
     email_from = settings.EMAIL_HOST_USER
@@ -59,13 +66,12 @@ def forgot_password(request):
     try:
         send_mail(subject=subject, message=message, recipient_list=receivers, from_email=email_from)
     except Exception:
-        raise ValidationError("Something went wrong! Can't send email")
+        raise ValidationError(errors.get_error(errors.EMAIL_NOT_SENT))
     return Response(status=status.HTTP_200_OK)
 
 @api_view(["POST"])
 def check_pin(request):
     if request.data["code"]:
-        # Forgot password to change
         user = get_object_or_404(get_user_model(),email=request.data["email"])
         serializer = ForgotPasswordSerializer(user)
         if serializer.data["code"] == request.data["code"]:
@@ -77,7 +83,7 @@ def check_pin(request):
 def reset_password(request):
     user = get_object_or_404(get_user_model(),email=request.data["email"])
     if request.data["password"] != request.data["password_confirm"]:
-        raise ValidationError("Both password and confirm are not same!")
+        raise ValidationError(errors.get_error(errors.PASSWORD_CONFIRM))
     serializer = ForgotPasswordSerializer(user)
     if serializer.data["code"] == request.data["code"]:
         code = ResetCode.objects.get(user=user)
@@ -92,7 +98,13 @@ def reset_password(request):
 def change_password(request):
     user = request.user
     if request.data["password"] != request.data["password_confirm"]:
-        raise ValidationError("Both password and confirm are not same!")
+        raise ValidationError(errors.get_error(errors.PASSWORD_CONFIRM))
     user.set_password(request.data["password"])
     user.save()
     return Response(status=status.HTTP_200_OK)
+
+@api_view(["GET"])
+@permission_classes([permissions.IsAuthenticated])
+def retrieve_profile(request):
+    serializer = ProfileSerializer(instance=request.user)
+    return Response(data=serializer.data,status=status.HTTP_200_OK)

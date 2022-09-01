@@ -15,6 +15,13 @@ class UserSerializer(serializers.ModelSerializer):
         model = get_user_model()
         fields = [ 'email', 'password' ]
 
+class ProfileSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = get_user_model()
+        fields = [ 'email', 'first_name', 'last_name', 'dob', 'phone_no' ]
+        read_only_fields = [ 'email', 'first_name', 'last_name', 'dob', 'phone_no' ]
+
 class RegisterSerializer(serializers.ModelSerializer):
 
     email = serializers.EmailField()
