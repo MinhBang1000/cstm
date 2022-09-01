@@ -34,7 +34,7 @@ class RegisterSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = get_user_model()
-        fields = [ "email", "password", "dob", "phone_no"]
+        fields = [ "email", "password", "dob", "phone_no", "first_name", "last_name"]
 
 class ForgotPasswordSerializer(serializers.ModelSerializer):
     code = serializers.StringRelatedField()

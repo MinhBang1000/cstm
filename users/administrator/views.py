@@ -21,6 +21,8 @@ class MyTokenObtainPairView(TokenObtainPairView):
 @api_view(["POST"])
 def register(request):
     data = request.data
+    if get_user_model().objects.get(email=request.data["email"]):
+        raise ValidationError({"error" : "This email have already exists! Please choose another"})
     if data["password"] != data["password_confirm"]:
         raise ValidationError("Both password and confirm was not same! Please check it again")
     serializer = RegisterSerializer(data=data)
