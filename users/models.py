@@ -18,7 +18,7 @@ class CustomUserManager(BaseUserManager):
             raise ValueError(_('The Email must be set'))
         email = self.normalize_email(email)
         user = self.model(email=email, **extra_fields)
-        user.set_password(password)
+        # user.set_password(password)
         user.save()
         return user
 
@@ -51,3 +51,10 @@ class CustomUser(AbstractUser):
 
     def __str__(self):
         return self.email
+
+class ResetCode(models.Model):
+    code = models.CharField(max_length=6)
+    user = models.OneToOneField(CustomUser, on_delete=models.CASCADE, related_name="code")
+
+    def __str__(self) -> str:
+        return self.code
