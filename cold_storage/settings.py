@@ -150,5 +150,9 @@ SIMPLE_JWT = {
     'ACCESS_TOKEN_LIFETIME': timedelta(minutes=59),
 }
 
+CSRF_TRUSTED_ORIGINS = [
+    'https://cold-storage-project.herokuapp.com'
+]
+
 import django_heroku
 django_heroku.settings(locals())
