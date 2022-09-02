@@ -23,7 +23,7 @@ class StorageViewSet(BaseViewSet):
         serializer.save(owner = self.request.user)
     
     def update(self, request, *args, **kwargs):
-        if request.data["owner"]:
+        if request.data.get("owner",None):
             raise ValidationError(get_error(CHANGE_OWNER))
         return super().update(request, *args, **kwargs)
 
