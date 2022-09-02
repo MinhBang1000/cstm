@@ -17,7 +17,7 @@ import random
 import string
 
 # Customize
-from users.administrator.serializers import ProfileSerializer, ResetCodeSerializer, ForgotPasswordSerializer, MyTokenObtainPairSerializer, RegisterSerializer
+from users.employee.serializers import ProfileSerializer, ResetCodeSerializer, ForgotPasswordSerializer, MyTokenObtainPairSerializer, RegisterSerializer
 from users.models import ResetCode 
 from bases import errors
 
