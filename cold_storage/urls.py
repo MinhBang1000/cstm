@@ -20,5 +20,6 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('users/', include('users.employee.urls')),
     path('owner/storages/', include('storages.administrator.urls')),
-    path('owner/storage_invites/', include('storage_invites.administrator.urls'))
+    path('owner/storage_invites/', include('storage_invites.administrator.urls')),
+    path('storage_invites/', include('storage_invites.employee.urls')),
 ]

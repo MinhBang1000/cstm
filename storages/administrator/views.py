@@ -6,7 +6,7 @@ from rest_framework.serializers import ValidationError
 
 # Customize
 from bases.errors import get_error, CHANGE_OWNER, NOT_FOUND_OPERATE
-from bases.views import BaseViewSet
+from bases.views import BaseViewSet, base64_encoding
 from bases.permissions import IsOwner
 from storages.models import Storage
 from storages.administrator.serializers import StorageSerializer
@@ -24,8 +24,12 @@ class StorageViewSet(BaseViewSet):
         if user.role == "Anonymous":
             user.role = "Owner"
             user.save()
-        serializer.save(owner = self.request.user)
-    
+        storage = serializer.save(owner = self.request.user)
+        storage_code = user.email + "@" + str(storage.id)
+        storage_code = base64_encoding(storage_code)
+        storage.storage_code = storage_code
+        storage.save()
+
     def update(self, request, *args, **kwargs):
         if request.data.get("owner",None):
             raise ValidationError(get_error(CHANGE_OWNER))

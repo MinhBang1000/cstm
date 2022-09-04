@@ -3,11 +3,12 @@ from django.contrib.auth import get_user_model
 
 # Rest Framework
 from rest_framework.serializers import ValidationError
+from rest_framework.response import Response
 
 # Customize
-from bases.errors import get_error, NOT_FOUND_OPERATE, NOT_ANONYMUS, ROLE_NOT_EXISTS,NOT_FOUND_STORAGE, ONE_MAN_TO_ONE_ROLE
+from bases.errors import get_error,NOT_ANONYMUS,NOT_FOUND_INVITATION, ROLE_NOT_EXISTS,NOT_FOUND_STORAGE, ONE_MAN_TO_ONE_ROLE
 from bases.views import BaseViewSet, base64_decoding
-from bases.permissions import IsOwner
+from bases.permissions import IsOwner, IsOwnerAnonymus
 from storages.models import Storage
 from storage_invites.models import StorageEmployee
 from storage_invites.administrator.serializers import StorageEmployeeSerializer
@@ -15,7 +16,12 @@ from storage_invites.administrator.serializers import StorageEmployeeSerializer
 class StorageEmployeeViewSet(BaseViewSet):
 
     serializer_class = StorageEmployeeSerializer
-    permission_classes = [IsOwner]
+    permission_classes = [IsOwnerAnonymus]
+
+    # def get_permissions(self):
+    #     if self.action == "POST":
+    #         return [IsOwnerAnonymus]
+    #     return [IsOwner]
 
     def get_queryset(self):
         return StorageEmployee.objects.filter(storage__owner = self.request.user)
@@ -44,5 +50,5 @@ class StorageEmployeeViewSet(BaseViewSet):
         except:
             raise ValidationError(get_error(ONE_MAN_TO_ONE_ROLE))
     
-    def update(self, request, *args, **kwargs):
-        raise ValidationError(get_error(NOT_FOUND_OPERATE))
+    def perform_update(self, serializer):
+        serializer.save(accepted = True)

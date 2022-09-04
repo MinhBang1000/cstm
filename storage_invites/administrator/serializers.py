@@ -13,6 +13,6 @@ class StorageEmployeeSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = StorageEmployee
-        fields = [ "id","employee","storage","accepted","for_role" ]
-        read_only_fields = [ "id","accepted" ]
+        fields = [ "id","employee","storage","accepted","for_role","from_owner" ]
+        read_only_fields = [ "id","accepted","from_owner" ]
     

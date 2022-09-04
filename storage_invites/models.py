@@ -10,3 +10,5 @@ class StorageEmployee(models.Model):
     storage = models.ForeignKey(Storage, on_delete=models.CASCADE, related_name="employees", null=True, blank=True)
     for_role = models.CharField(max_length=50, default="Supervisor", blank=True, null=True)
     accepted = models.BooleanField(default=False)
+    from_owner = models.BooleanField(default=True)
+    # Owner invite when from_owner = True

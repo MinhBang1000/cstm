@@ -14,9 +14,10 @@ class StorageSerializer(serializers.ModelSerializer):
     owner = EmployeeSerializer(read_only = True)
     class Meta:
         model = Storage
-        fields = [ "id", "storage_name","length","width","height","owner" ]
+        fields = [ "id", "storage_name","length","width","height","owner","storage_code"]
+        read_only_fields = [ "storage_code" ]
 
 class StorageRelatedSerializer(serializers.ModelSerializer):
     class Meta:
         model = Storage
-        fields = [ "id", "storage_name","length","width","height"]  
+        fields = [ "id", "storage_name","length","width","height","storage_code"]  
