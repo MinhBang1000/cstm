@@ -45,7 +45,9 @@ INSTALLED_APPS = [
     'rest_framework',
     'bases',
     'users',
-    'storages'
+    'storages',
+    'storage_invites',
+    'notifications',
 ]
 
 MIDDLEWARE = [

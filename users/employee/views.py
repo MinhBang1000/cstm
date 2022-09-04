@@ -19,7 +19,7 @@ import string
 # Customize
 from users.employee.serializers import ProfileSerializer, ResetCodeSerializer, ForgotPasswordSerializer, MyTokenObtainPairSerializer, RegisterSerializer
 from users.models import ResetCode 
-from bases import errors
+from bases import errors, views as base_views
 
 
 class MyTokenObtainPairView(TokenObtainPairView):
@@ -31,15 +31,17 @@ def register(request):
     try:
         user = get_user_model().objects.get(email=request.data["email"])
     except:
-        pass
-    if user:
-        raise ValidationError(errors.get_error(errors.EMAIL_EXSITS))
+        user = None
+    finally:
+        if user:
+            raise ValidationError(errors.get_error(errors.EMAIL_EXSITS))
     if data["password"] != data["password_confirm"]:
         raise ValidationError(errors.get_error(errors.PASSWORD_CONFIRM))
     serializer = RegisterSerializer(data=data)
     serializer.is_valid(raise_exception=True)
     user = get_user_model().objects.create_user(**serializer.validated_data)
     user.set_password(data["password"])
+    user.profile_code = base_views.base64_encoding(user.email)
     user.save()
     return Response(status=status.HTTP_201_CREATED)
 

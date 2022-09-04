@@ -1,4 +1,5 @@
 # Rest Framework
+import base64
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.response import Response
 
@@ -15,3 +16,17 @@ class BaseViewSet(ModelViewSet):
     def update(self, request, *args, **kwargs):
         kwargs['partial'] = True
         return super().update(request, *args, **kwargs)
+
+# Function of encoding base64
+def base64_encoding(value):
+    value = value.encode('ascii')
+    value = base64.b64encode(value)
+    value = value.decode('ascii')
+    return value
+
+# Function of decoding base64
+def base64_decoding(value):
+    value = value.encode('ascii')
+    value = base64.b64decode(value)
+    value = value.decode('ascii')
+    return value

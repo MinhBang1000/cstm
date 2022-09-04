@@ -1,16 +1,20 @@
+# Django
+from django.contrib.auth import get_user_model
+
 # Rest Framework
-from rest_framework import permissions
 from rest_framework.serializers import ValidationError
 
 # Customize
-from bases.errors import get_error, CHANGE_OWNER
+from bases.errors import get_error, CHANGE_OWNER, NOT_FOUND_OPERATE
 from bases.views import BaseViewSet
+from bases.permissions import IsOwner
 from storages.models import Storage
 from storages.administrator.serializers import StorageSerializer
 
+
 class StorageViewSet(BaseViewSet):
     serializer_class = StorageSerializer
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [IsOwner]
 
     def get_queryset(self):
         return Storage.objects.filter(owner=self.request.user).select_related("owner")
@@ -27,5 +31,3 @@ class StorageViewSet(BaseViewSet):
             raise ValidationError(get_error(CHANGE_OWNER))
         return super().update(request, *args, **kwargs)
 
-    
-    

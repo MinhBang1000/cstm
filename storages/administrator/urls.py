@@ -10,6 +10,7 @@ from storages.administrator.views import StorageViewSet
 router = DefaultRouter()
 router.register('', StorageViewSet, basename="storages")
 
+
 urlpatterns = [
-    path('', include(router.urls))
+    path('', include(router.urls)),
 ]

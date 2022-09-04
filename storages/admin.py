@@ -1,5 +1,5 @@
 from django.contrib import admin
-from storages.models import Storage, StorageEmployee
+from storages.models import Storage
 
 # Register your models here.
-admin.site.register([StorageEmployee, Storage])
+admin.site.register(Storage)

@@ -19,8 +19,8 @@ class ProfileSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = get_user_model()
-        fields = [ 'email', 'first_name', 'last_name', 'dob', 'phone_no' ]
-        read_only_fields = [ 'email', 'first_name', 'last_name', 'dob', 'phone_no' ]
+        fields = [ 'id','email', 'first_name', 'last_name', 'dob', 'phone_no','role','profile_code' ]
+        read_only_fields = [ 'id', 'email', 'first_name', 'last_name', 'dob', 'phone_no','role','profile_code' ]
 
 class RegisterSerializer(serializers.ModelSerializer):
 
@@ -55,3 +55,10 @@ class ResetCodeSerializer(serializers.ModelSerializer):
         model = ResetCode
         fields = ["code"]
         write_only_fields = ["code"]
+
+class EmployeeSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = get_user_model()
+        fields = [ "id","email","first_name","last_name","role" ]
+        read_only_fields = [ "id","email","first_name","last_name","role" ]

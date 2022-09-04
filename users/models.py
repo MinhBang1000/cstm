@@ -43,6 +43,7 @@ class CustomUser(AbstractUser):
     dob = models.DateField()
     phone_no = models.CharField(max_length=10)
     role = models.CharField(max_length=10, default="Anonymous")
+    profile_code = models.CharField(max_length=64, unique=True, null=True, blank=True)
 
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = []
