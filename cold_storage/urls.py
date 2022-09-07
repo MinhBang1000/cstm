@@ -17,10 +17,17 @@ from django.contrib import admin
 from django.urls import path, include
 
 urlpatterns = [
+    # General
     path('admin/', admin.site.urls),
     path('users/', include('users.employee.urls')),
+    path('storage_invites/', include('storage_invites.employee.urls')),
+
+    # Supervisor
     path('supervisor/storages/', include('storages.supervisor.urls')),
+    path('supervisor/areas/', include('areas.supervisor.urls')),
+
+    # Owner
     path('owner/storages/', include('storages.administrator.urls')),
     path('owner/storage_invites/', include('storage_invites.administrator.urls')),
-    path('storage_invites/', include('storage_invites.employee.urls')),
+    
 ]

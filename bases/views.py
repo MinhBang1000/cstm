@@ -1,9 +1,18 @@
+# Django
+from django_filters.rest_framework import DjangoFilterBackend
+
+# JWT
+from rest_framework_simplejwt.authentication import JWTAuthentication
+
 # Rest Framework
 import base64
+from rest_framework.filters import SearchFilter, OrderingFilter
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.response import Response
 
 class BaseViewSet(ModelViewSet):
+    authentication_classes = [JWTAuthentication]
+    filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
     
     def list(self, request, *args, **kwargs):
         is_paginate = bool(request.query_params.get("paginate",False) == "true")

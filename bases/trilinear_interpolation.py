@@ -1,3 +1,6 @@
+from datetime import datetime
+
+
 temperatures = {
     "p000": -17.11,
     "p100": -18.65,
@@ -46,6 +49,10 @@ def delta_generators(point, storage_space):
 def trilinear_interpolation(storage_space, temperatures, lamda = 1):
     c_parameters = c_generators(temperatures)
     total = [[ ['#' for col in range(storage_space.get("z_max")+1)] for col in range(storage_space.get("y_max")+1)] for row in range(storage_space.get("x_max")+1)]
+    max = -9999
+    min = 9999
+    count = 0
+    sum_total = 0
     for x in range(storage_space.get("x_max")+1):
         for y in range(storage_space.get("y_max")+1):
             for z in range(storage_space.get("z_max")+1):
@@ -56,6 +63,16 @@ def trilinear_interpolation(storage_space, temperatures, lamda = 1):
                 }
                 delta_parameters = delta_generators(point=point, storage_space=storage_space)
                 total[x][y][z] = c_parameters.get("c0") + (c_parameters.get("c1")*delta_parameters.get("delta_x")) + (c_parameters.get("c2")*delta_parameters.get("delta_y")) + (c_parameters.get("c3")*delta_parameters.get("delta_z")) + (c_parameters.get("c4")*delta_parameters.get("delta_x")*delta_parameters.get("delta_y")) + (c_parameters.get("c5")*delta_parameters.get("delta_y")*delta_parameters.get("delta_z")) + (c_parameters.get("c6")*delta_parameters.get("delta_z")*delta_parameters.get("delta_x")) + (c_parameters.get("c7")*delta_parameters.get("delta_x")*delta_parameters.get("delta_y")*delta_parameters.get("delta_z"))
-    return total
-
-# lst_3d = trilinear_interpolation(storage_space=storage_space, temperatures=temperatures, lamda = 1)
+                if max <= total[x][y][z]:
+                    max = total[x][y][z]
+                if min >= total[x][y][z]:
+                    min = total[x][y][z]
+                count += 1
+                sum_total += total[x][y][z]
+    return {
+        "min": min,
+        "max": max,
+        "average": sum_total/count,
+        "time": datetime.today(),
+        "values": total
+    }
