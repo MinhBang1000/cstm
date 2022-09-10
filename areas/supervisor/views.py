@@ -4,7 +4,6 @@ from rest_framework.serializers import ValidationError
 
 # Customize
 from storages.models import Storage
-from storage_invites.models import StorageEmployee
 from bases import errors
 from bases.views import BaseViewSet
 from areas.supervisor.serializers import AreaSerializer

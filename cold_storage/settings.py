@@ -45,10 +45,14 @@ INSTALLED_APPS = [
     'rest_framework',
     'django_filters',
     'areas',
+    'accesses',
     'bases',
     'users',
+    'provinces',
+    'districts',
+    'companies',
+    'branches',
     'storages',
-    'storage_invites',
     'notifications',
 ]
 

@@ -6,7 +6,6 @@ from rest_framework.response import Response
 # Customize
 from bases.permissions import IsOwnerSupervisor
 from storages.models import Storage
-from storage_invites.models import StorageEmployee
 from bases import errors, trilinear_interpolation
 
 @api_view(["POST"])

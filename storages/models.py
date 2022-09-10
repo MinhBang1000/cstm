@@ -1,10 +1,18 @@
+# Django
 from django.db import models
-from django.contrib.auth import get_user_model
+
+# Customize
+from districts.models import District
+from branches.models import Branch
 
 class Storage(models.Model):
     storage_name = models.CharField(max_length=250)
-    length = models.IntegerField()
-    width = models.IntegerField()
-    height = models.IntegerField()
+    storage_length = models.IntegerField()
+    storage_width = models.IntegerField()
+    storage_height = models.IntegerField()
     storage_code = models.CharField(max_length=64, default=None)
-    owner = models.ForeignKey(get_user_model(), on_delete=models.CASCADE, related_name="owner_storages")
+    storage_street = models.CharField(max_length=250)
+    storage_district = models.ForeignKey(District, on_delete=models.CASCADE, related_name="district_storages")
+    storage_branch = models.ForeignKey(Branch, on_delete=models.CASCADE, related_name="branch_storages")
+    storage_created = models.DateTimeField(auto_now_add=True)
+    storage_updated = models.DateTimeField(auto_now=True)
