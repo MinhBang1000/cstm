@@ -9,8 +9,11 @@ from districts.models import District
 class DistrictViewSet(BaseViewSet):
     serializer_class = serializers.DistrictSerializer
     queryset = District.objects.all().select_related("district_province")
-
+    filterset_fields = [ "id","district_name","district_province__province_name" ]
+    
     def get_permissions(self):
-        if self.action == "GET":
-            return [ permissions.IsAuthenticated ]
-        return [ permissions.IsAdminUser ]
+        if self.request.method in ["GET"]:
+            return [ permissions.IsAuthenticated() ]
+        return [ permissions.IsAdminUser() ]
+
+    

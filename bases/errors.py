@@ -25,3 +25,4 @@ TEMPERATURE_VALID = "Min of temperature must be set smaller than max of temperat
 CHANGE_STORAGE = "Can not change storage of area!"
 CHANGE_EMPLOYEE = "Can not change creater of area!"
 NOT_FOUND_PROVINCE = "Can't found any province which you have follow this id!"
+PROVINCE_EXISTS = "This province's name has already exists!"

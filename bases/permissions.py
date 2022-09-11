@@ -4,6 +4,10 @@ class IsOwner(permissions.IsAuthenticated):
     def has_permission(self, request, view):
         return super().has_permission(request, view) and request.user.role in ["Owner"]
 
+class IsOwnerAdmin(permissions.IsAdminUser):
+    def has_permission(self, request, view):
+        return super().has_permission(request, view) and request.user.role in ["Owner","Administrator"]
+
 class IsAnonymus(permissions.IsAuthenticated):
     def has_permission(self, request, view):
         return super().has_permission(request, view) and request.user.role == "Anonymous"

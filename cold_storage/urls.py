@@ -30,5 +30,6 @@ urlpatterns = [
     path('owner/companies/', include('companies.owner.urls')),  
 
     # Administrator
+    path('administrator/provinces/', include('provinces.administrator.urls')),
     path('administrator/districts/', include('districts.administrator.urls')),
 ]

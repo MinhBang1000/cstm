@@ -1,8 +1,9 @@
 from django.urls import path
-from users.employee.views import MyTokenObtainPairView, retrieve_profile, forgot_password, change_password, register, check_pin, reset_password
+from users.employee.views import MyTokenObtainPairView, increase_permission, retrieve_profile, forgot_password, change_password, register, check_pin, reset_password
 from rest_framework_simplejwt.views import TokenRefreshView
 
 urlpatterns = [
+    path('increase-to-administrator/', increase_permission, name="increase_to_administrator"),
     path('register/', register, name="register"),
     path('forgot-password/', forgot_password, name="forgot_password"),
     path('check-pin/', check_pin, name="check_pin"),
