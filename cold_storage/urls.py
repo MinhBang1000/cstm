@@ -28,6 +28,7 @@ urlpatterns = [
     # Owner
     path('owner/storages/', include('storages.administrator.urls')),
     path('owner/companies/', include('companies.owner.urls')),  
+    path('owner/branches/', include('branches.owner.urls')),
 
     # Administrator
     path('administrator/provinces/', include('provinces.administrator.urls')),
