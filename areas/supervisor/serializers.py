@@ -6,14 +6,14 @@ from rest_framework import serializers
 from rest_framework.serializers import ValidationError
 
 # Customize
-from storages.administrator.serializers import StorageRelatedSerializer
+# from storages.administrator.serializers import StorageRelatedSerializer
 from users.employee.serializers import EmployeeSerializer
 from bases import errors
 from areas.models import Area
 
 class AreaSerializer(serializers.ModelSerializer):
 
-    storage = StorageRelatedSerializer(read_only = True)
+    # storage = StorageRelatedSerializer(read_only = True)
     employee = EmployeeSerializer(read_only = True)
 
     class Meta:

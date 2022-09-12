@@ -26,7 +26,7 @@ urlpatterns = [
     path('supervisor/areas/', include('areas.supervisor.urls')),
 
     # Owner
-    path('owner/storages/', include('storages.administrator.urls')),
+    path('owner/storages/', include('storages.owner.urls')),
     path('owner/companies/', include('companies.owner.urls')),  
     path('owner/branches/', include('branches.owner.urls')),
 
