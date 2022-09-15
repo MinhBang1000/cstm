@@ -20,6 +20,7 @@ urlpatterns = [
     # General
     path('admin/', admin.site.urls),
     path('users/', include('users.employee.urls')),
+    path('accesses/', include('accesses.employee.urls')),
     
     # Supervisor
     path('supervisor/storages/', include('storages.supervisor.urls')),
@@ -29,6 +30,7 @@ urlpatterns = [
     path('owner/storages/', include('storages.owner.urls')),
     path('owner/companies/', include('companies.owner.urls')),  
     path('owner/branches/', include('branches.owner.urls')),
+    path('owner/accesses/', include('accesses.owner.urls')),
 
     # Administrator
     path('administrator/provinces/', include('provinces.administrator.urls')),
