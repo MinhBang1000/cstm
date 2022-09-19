@@ -1,6 +1,29 @@
 from datetime import datetime
+import sys
 
+sys.setrecursionlimit(2000)
 
+# Data 
+# Improvement
+# Data for initial (Minimum of unit is "cm")
+# Dictionary structure of Storage space
+space = {
+    "x_min": 0,
+    "y_min": 0,
+    "z_min": 0,
+    "x_max": 53,
+    "y_max": 22,
+    "z_max": 25
+}
+
+# A point which we want to know its temperature
+point = {
+    "x": 22,
+    "y": 11,
+    "z": 12
+}
+
+# Temperatures of eight sensors
 temperatures = {
     "p000": -17.11,
     "p100": -18.65,
@@ -12,21 +35,99 @@ temperatures = {
     "p111": -15.55
 }
 
-storage_space = {
-    "x_min": 0,
-    "y_min": 0,
-    "z_min": 0,
-    "x_max": 53,
-    "y_max": 22,
-    "z_max": 25
-}
+# Data of sensors
+sensors = [
+    {
+        "location": {
+            "x":0,
+            "y":0,
+            "z":0
+        },
+        "temperature": -17.11
+    },
+    {
+        "location": {
+            "x":53,
+            "y":0,
+            "z":0
+        },
+        "temperature": -18.65
+    },
+    {
+        "location": {
+            "x":0,
+            "y":22,
+            "z":0
+        },
+        "temperature": -17.11
+    },
+    {
+        "location": {
+            "x":53,
+            "y":22,
+            "z":0
+        },
+        "temperature": -18.44
+    },
+    {
+        "location": {
+            "x":0,
+            "y":0,
+            "z":25
+        },
+        "temperature": -14.99
+    },
+    {
+        "location": {
+            "x":53,
+            "y":0,
+            "z":25
+        },
+        "temperature": -16.85
+    },
+    {
+        "location": {
+            "x":0,
+            "y":22,
+            "z":25
+        },
+        "temperature": -14.44
+    },
+    {
+        "location": {
+            "x":53,
+            "y":22,
+            "z":25
+        },
+        "temperature": -15.55
+    },
+    {
+        "location": {
+            "x":26,
+            "y":11,
+            "z":12
+        },
+        "temperature": -16.36
+    },
+    {
+        "location": {
+            "x":13,
+            "y":0,
+            "z":0
+        },
+        "temperature": -16.54
+    },
+    {
+        "location": {
+            "x":37,
+            "y":22,
+            "z":18
+        },
+        "temperature": -16.32
+    }
+]
 
-point = {
-    "x": 53/2,
-    "y": 11,
-    "z": 12.5
-}
-
+# Generate value which is used for one_point_interpolation
 def c_generators(temperatures):
     return {
         "c0": temperatures.get("p000"),
@@ -46,6 +147,7 @@ def delta_generators(point, storage_space):
         "delta_z": (point.get("z") - storage_space.get("z_min")) / (storage_space.get("z_max") - storage_space.get("z_min"))
     }
 
+# Trilinear interpolation for all storage space
 def trilinear_interpolation(storage_space, temperatures, lamda = 1):
     c_parameters = c_generators(temperatures)
     total = [[ ['#' for col in range(storage_space.get("z_max")+1)] for col in range(storage_space.get("y_max")+1)] for row in range(storage_space.get("x_max")+1)]
@@ -76,3 +178,192 @@ def trilinear_interpolation(storage_space, temperatures, lamda = 1):
         "time": datetime.today(),
         "values": total
     }
+
+
+def one_point_interpolation(point, space, temperatures):
+    c_parameters = c_generators(temperatures)
+    delta_parameters = delta_generators(point=point, storage_space=space)
+    value_of_point = c_parameters.get("c0") + (c_parameters.get("c1")*delta_parameters.get("delta_x")) + (c_parameters.get("c2")*delta_parameters.get("delta_y")) + (c_parameters.get("c3")*delta_parameters.get("delta_z")) + (c_parameters.get("c4")*delta_parameters.get("delta_x")*delta_parameters.get("delta_y")) + (c_parameters.get("c5")*delta_parameters.get("delta_y")*delta_parameters.get("delta_z")) + (c_parameters.get("c6")*delta_parameters.get("delta_z")*delta_parameters.get("delta_x")) + (c_parameters.get("c7")*delta_parameters.get("delta_x")*delta_parameters.get("delta_y")*delta_parameters.get("delta_z"))
+    return value_of_point
+
+# Get sensors complement in all of sensors 
+
+
+
+# To divide list of sensor for primary sensors and secondary sensors 
+def divide_sensor_list(space, list_of_sensor):
+    plst = []
+    clst = []
+    x_range = [ space["x_min"], space["x_max"] ]
+    y_range = [ space["y_min"], space["y_max"] ]
+    z_range = [ space["z_min"], space["z_max"] ]
+    for sensor in list_of_sensor:
+        if sensor["location"]["x"] in x_range  and sensor["location"]["y"] in y_range and sensor["location"]["z"] in z_range:
+            plst.append(sensor)
+        else:
+            clst.append(sensor)
+    return {
+        "primary_sensors": plst,
+        "secondary_sensors": clst
+    }
+
+# Init list of secondary sensor
+secondary_sensors = divide_sensor_list(space, sensors)["secondary_sensors"]
+
+# Init list of mark for secondary sensor (True is marked)
+mark_of_secondary_sensors = [ False for i in secondary_sensors ]
+
+# Init list of space 
+total_spaces = []
+
+# To know type of sensor (On face, on line, inside) - Can't use it
+def get_type_sensor(sensor, space):
+    x_sensor = sensor["location"]["x"]
+    y_sensor = sensor["location"]["y"]
+    z_sensor = sensor["location"]["z"]
+    x_min = space["x_min"]
+    x_max = space["x_max"]
+    y_min = space["y_min"]
+    y_max = space["y_max"]
+    z_min = space["z_min"]
+    z_max = space["z_max"]
+    if (x_sensor > x_min and x_sensor < x_max) and (y_sensor > y_min and y_sensor < y_max) and (z_sensor > z_min and z_sensor < z_max):
+        # Inside
+        return 1 
+    elif (y_sensor > y_min and y_sensor < y_max) and (z_sensor > z_min and z_sensor < z_max):
+        # Must be validate input sensor inside range of Storage first
+        # On face x
+        if (x_sensor in [ x_min, x_max ]):
+            return 2
+    elif (x_sensor > x_min and x_sensor < x_max) and (z_sensor > z_min and z_sensor < z_max):
+        # Must be validate input sensor inside range of Storage first
+        # On face x
+        if (y_sensor in [ y_min, y_max ]):
+            return 2
+    elif (y_sensor > y_min and y_sensor < y_max) and (x_sensor > x_min and x_sensor < x_max):
+        # Must be validate input sensor inside range of Storage first
+        # On face x
+        if (z_sensor in [ z_min, z_max ]):
+            return 2
+    # On line
+    return 3
+
+# Is sensor inside this space
+def is_inside_space(sensor, space):
+    x_sensor = sensor["location"]["x"]
+    y_sensor = sensor["location"]["y"]
+    z_sensor = sensor["location"]["z"]
+    x_min = space["x_min"]
+    x_max = space["x_max"]
+    y_min = space["y_min"]
+    y_max = space["y_max"]
+    z_min = space["z_min"]
+    z_max = space["z_max"]
+    if (x_sensor >= x_min and x_sensor <= x_max) and (y_sensor >= y_min and y_sensor <= y_max) and (z_sensor >= z_min and z_sensor <= z_max):
+        return True
+    return False
+
+# Get space follow sensor type
+def get_space_follow_sensor_type(sensor, parent_space):
+    x_sensor = sensor["location"]["x"]
+    y_sensor = sensor["location"]["y"]
+    z_sensor = sensor["location"]["z"]
+    x_min = parent_space["x_min"]
+    x_max = parent_space["x_max"]
+    y_min = parent_space["y_min"]
+    y_max = parent_space["y_max"]
+    z_min = parent_space["z_min"]
+    z_max = parent_space["z_max"]
+    child_spaces = [   
+            {
+                "x_min": x_min,
+                "y_min": y_min,
+                "z_min": z_min,
+                "x_max": x_sensor,
+                "y_max": y_sensor,
+                "z_max": z_sensor
+            },
+            {
+                "x_min": x_sensor,
+                "y_min": y_min,
+                "z_min": z_min,
+                "x_max": x_max,
+                "y_max": y_sensor,
+                "z_max": z_sensor
+            },
+            {
+                "x_min": x_sensor,
+                "y_min": y_sensor,
+                "z_min": z_min,
+                "x_max": x_max,
+                "y_max": y_max,
+                "z_max": z_sensor
+            },
+            {
+                "x_min": x_min,
+                "y_min": y_sensor,
+                "z_min": z_min,
+                "x_max": x_sensor,
+                "y_max": y_max,
+                "z_max": z_sensor
+            },
+            {
+                "x_min": x_min,
+                "y_min": y_min,
+                "z_min": z_sensor,
+                "x_max": x_sensor,
+                "y_max": y_sensor,
+                "z_max": z_max
+            },
+            {
+                "x_min": x_sensor,
+                "y_min": y_min,
+                "z_min": z_sensor,
+                "x_max": x_max,
+                "y_max": y_sensor,
+                "z_max": z_max
+            },
+            {
+                "x_min": x_sensor,
+                "y_min": y_sensor,
+                "z_min": z_sensor,
+                "x_max": x_max,
+                "y_max": y_max,
+                "z_max": z_max
+            },
+            {
+                "x_min": x_min,
+                "y_min": y_sensor,
+                "z_min": z_sensor,
+                "x_max": x_sensor,
+                "y_max": y_max,
+                "z_max": z_max
+            }
+        ]
+    result_spaces = []
+    for space in child_spaces:
+        if (space["x_min"] != space["x_max"]) and (space["y_min"] != space["y_max"]) and (space["z_min"] != space["z_max"]):
+            result_spaces.append(space)
+    return result_spaces
+
+# To travesal all of sensor
+def init_list_of_space(space):
+    flag = True
+    for i in range(len(secondary_sensors)):
+        sensor = secondary_sensors[i]
+        if mark_of_secondary_sensors[i] == False and is_inside_space(sensor, space):
+            mark_of_secondary_sensors[i] = True
+            flag = False
+            # Regression here
+            child_spaces = get_space_follow_sensor_type(sensor, space)
+            for ch_space in child_spaces:
+                init_list_of_space(ch_space)
+    if flag == True:
+        total_spaces.append(space)
+
+# Test for travesal 
+# init_list_of_space(space)
+# for space in total_spaces:
+#     print(space,"\n")
+# print(len(total_spaces))
+
