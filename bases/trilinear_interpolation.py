@@ -1,4 +1,5 @@
 from datetime import datetime
+import storage_spaces_saving as sss
 import sys
 
 sys.setrecursionlimit(2000)
@@ -7,6 +8,15 @@ sys.setrecursionlimit(2000)
 # Improvement
 # Data for initial (Minimum of unit is "cm")
 # Dictionary structure of Storage space
+storage_space = {
+    "x_min": 0,
+    "y_min": 0,
+    "z_min": 0,
+    "x_max": 53,
+    "y_max": 22,
+    "z_max": 25
+}
+
 space = {
     "x_min": 0,
     "y_min": 0,
@@ -24,6 +34,17 @@ point = {
 }
 
 # Temperatures of eight sensors
+storage_temperatures = {
+    "p000": -17.11,
+    "p100": -18.65,
+    "p010": -17.11,
+    "p110": -18.44,
+    "p001": -14.99,
+    "p101": -16.85,
+    "p011": -14.44,
+    "p111": -15.55
+}
+
 temperatures = {
     "p000": -17.11,
     "p100": -18.65,
@@ -179,16 +200,19 @@ def trilinear_interpolation(storage_space, temperatures, lamda = 1):
         "values": total
     }
 
+# Check it True if not in any sensor location
+def is_not_in_sensor_zone(point, sensor_points):
+    for sensor in sensor_points:
+        if point["x"] == sensor["location"]["x"] and point["y"] == sensor["location"]["y"] and point["z"] == sensor["location"]["z"]:
+            return False
+    return True
 
+# Value of temperature at one point which is got by interpolation
 def one_point_interpolation(point, space, temperatures):
     c_parameters = c_generators(temperatures)
     delta_parameters = delta_generators(point=point, storage_space=space)
     value_of_point = c_parameters.get("c0") + (c_parameters.get("c1")*delta_parameters.get("delta_x")) + (c_parameters.get("c2")*delta_parameters.get("delta_y")) + (c_parameters.get("c3")*delta_parameters.get("delta_z")) + (c_parameters.get("c4")*delta_parameters.get("delta_x")*delta_parameters.get("delta_y")) + (c_parameters.get("c5")*delta_parameters.get("delta_y")*delta_parameters.get("delta_z")) + (c_parameters.get("c6")*delta_parameters.get("delta_z")*delta_parameters.get("delta_x")) + (c_parameters.get("c7")*delta_parameters.get("delta_x")*delta_parameters.get("delta_y")*delta_parameters.get("delta_z"))
     return value_of_point
-
-# Get sensors complement in all of sensors 
-
-
 
 # To divide list of sensor for primary sensors and secondary sensors 
 def divide_sensor_list(space, list_of_sensor):
@@ -361,9 +385,94 @@ def init_list_of_space(space):
     if flag == True:
         total_spaces.append(space)
 
-# Test for travesal 
-# init_list_of_space(space)
-# for space in total_spaces:
-#     print(space,"\n")
-# print(len(total_spaces))
+# First interpolation to get sensor value for the number of spaces which was got by travesal
+def get_first_interpolation(sensors, space):
+    x_max = space["x_max"]
+    y_max = space["y_max"]
+    z_max = space["z_max"]
+    # first_interpolation = [[ ['#' for col in range(z_max+1)] for col in range(y_max+1)] for row in range(x_max+1)]
+    first_interpolation = trilinear_interpolation(storage_space, storage_temperatures)["values"]
+    for sensor in sensors:
+        x_sensor = sensor["location"]["x"]
+        y_sensor = sensor["location"]["y"]
+        z_sensor = sensor["location"]["z"]
+        first_interpolation[x_sensor][y_sensor][z_sensor] = sensor["temperature"]
+    return first_interpolation
 
+# To get temperature in first interpolation
+# "storage_" is a prefix which is identify all items of primary component such as: Storage space and temperatures list of eight sensor
+def get_temperatures_of_first_interpolation(first_interpolation, space, storage_temperatures, storage_space):
+    x_min = space["x_min"]
+    x_max = space["x_max"]
+    y_min = space["y_min"]
+    y_max = space["y_max"]
+    z_min = space["z_min"]
+    z_max = space["z_max"]
+    return {
+        "p000": first_interpolation[x_min][y_min][z_min],
+        "p100": first_interpolation[x_max][y_min][z_min],
+        "p010": first_interpolation[x_min][y_max][z_min],
+        "p110": first_interpolation[x_max][y_max][z_min],
+        "p001": first_interpolation[x_min][y_min][z_max],
+        "p101": first_interpolation[x_max][y_min][z_max],
+        "p011": first_interpolation[x_min][y_max][z_max],
+        "p111": first_interpolation[x_max][y_max][z_max]
+    }
+    # return {
+    #     "p000": first_interpolation[x_min][y_min][z_min] if first_interpolation[x_min][y_min][z_min] != "#" else one_point_interpolation({ "x":x_min, "y":y_min, "z":z_min }, storage_space, storage_temperatures),
+    #     "p100": first_interpolation[x_max][y_min][z_min] if first_interpolation[x_max][y_min][z_min] != "#" else one_point_interpolation({ "x":x_max, "y":y_min, "z":z_min }, storage_space, storage_temperatures),
+    #     "p010": first_interpolation[x_min][y_max][z_min] if first_interpolation[x_min][y_max][z_min] != "#" else one_point_interpolation({ "x":x_min, "y":y_max, "z":z_min }, storage_space, storage_temperatures),
+    #     "p110": first_interpolation[x_max][y_max][z_min] if first_interpolation[x_max][y_max][z_min] != "#" else one_point_interpolation({ "x":x_max, "y":y_max, "z":z_min }, storage_space, storage_temperatures),
+    #     "p001": first_interpolation[x_min][y_min][z_max] if first_interpolation[x_min][y_min][z_max] != "#" else one_point_interpolation({ "x":x_min, "y":y_min, "z":z_max }, storage_space, storage_temperatures),
+    #     "p101": first_interpolation[x_max][y_min][z_max] if first_interpolation[x_max][y_min][z_max] != "#" else one_point_interpolation({ "x":x_max, "y":y_min, "z":z_max }, storage_space, storage_temperatures),
+    #     "p011": first_interpolation[x_min][y_max][z_max] if first_interpolation[x_min][y_max][z_max] != "#" else one_point_interpolation({ "x":x_min, "y":y_max, "z":z_max }, storage_space, storage_temperatures),
+    #     "p111": first_interpolation[x_max][y_max][z_max] if first_interpolation[x_max][y_max][z_max] != "#" else one_point_interpolation({ "x":x_max, "y":y_max, "z":z_max }, storage_space, storage_temperatures)
+    # }
+ 
+n = int(input("Enter you choice (Spaces - 1/ Interpolation - 2): "))
+
+# Show running time 
+import time
+start_time = time.time()
+
+if n == 1:
+    # Got total_spaces
+    init_list_of_space(storage_space) 
+
+    # Saving spaces of storage into local file
+    sss.local_write(total_spaces)
+else:
+    total_spaces = sss.local_read()
+    x_max = storage_space["x_max"]
+    y_max = storage_space["y_max"]
+    z_max = storage_space["z_max"] 
+    first_interpolation = get_first_interpolation(sensors, space) # Got first intepolation for any point which has fiction value
+    total_interpolation = [[ ['#' for col in range(z_max+1)] for col in range(y_max+1)] for row in range(x_max+1)] # Return final !
+    for space in total_spaces:
+        x_min = space["x_min"]
+        x_max = space["x_max"]
+        y_min = space["y_min"]
+        y_max = space["y_max"]
+        z_min = space["z_min"]
+        z_max = space["z_max"] 
+        temperatures = get_temperatures_of_first_interpolation(first_interpolation=first_interpolation, space=space, storage_temperatures=storage_temperatures, storage_space=storage_space)
+        for x in range(x_max + 1):
+            for y in range(y_max + 1):
+                for z in range(z_max + 1):
+                    point = {
+                        "x": x,
+                        "y": y,
+                        "z": z
+                    }
+                    total_interpolation[x][y][z] = one_point_interpolation(point, space, temperatures)
+
+    # Update temperatures at sensor point again 
+    for sensor in sensors:
+        x_sensor = sensor["location"]["x"]
+        y_sensor = sensor["location"]["y"]
+        z_sensor = sensor["location"]["z"]
+        total_interpolation[x_sensor][y_sensor][z_sensor] = sensor["temperature"]
+
+    print(total_interpolation)
+
+print("Runtime is : ", (time.time() - start_time))
