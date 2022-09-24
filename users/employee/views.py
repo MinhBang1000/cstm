@@ -99,6 +99,9 @@ def reset_password(request):
 @permission_classes([permissions.IsAuthenticated])
 def change_password(request):
     user = request.user
+    # Must be check have all of fields you need 
+    if user.check_password(request.data["password_old"]) == False:
+        raise ValidationError(errors.get_error(errors.OLD_PASSWORD_INCORRECT))
     if request.data["password"] != request.data["password_confirm"]:
         raise ValidationError(errors.get_error(errors.PASSWORD_CONFIRM))
     user.set_password(request.data["password"])

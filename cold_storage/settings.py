@@ -53,6 +53,7 @@ INSTALLED_APPS = [
     'companies',
     'branches',
     'storages',
+    'sensors',
     'notifications',
 ]
 

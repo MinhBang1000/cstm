@@ -31,6 +31,7 @@ urlpatterns = [
     path('owner/companies/', include('companies.owner.urls')),  
     path('owner/branches/', include('branches.owner.urls')),
     path('owner/accesses/', include('accesses.owner.urls')),
+    path('owner/sensors/', include('sensors.owner.urls')),
 
     # Administrator
     path('administrator/provinces/', include('provinces.administrator.urls')),

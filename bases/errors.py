@@ -32,3 +32,7 @@ NOT_FOUND_EMPLOYEE = "Can't find any of users who has a following access employe
 NOT_REQUEST_EMPLOYEE_CODE = "You didn't send employee code for create access!"
 NOT_REQUEST_STORAGE_CODE = "You didn't send storage code for create access!"
 CAN_NOT_ACCEPT = "You don't have permission to accept it"
+SENSOR_EXISTS = "You can't overide for any existed sensor!"
+OLD_PASSWORD_INCORRECT = "Your old password is invalid!"
+CAN_NOT_CHANGE_STORAGE_OF_SENSOR = "You can't change storage which have this sensor!"
+NOT_FOUND_SENSOR = "You can't find any sensor with this id!"

@@ -1,5 +1,5 @@
 from datetime import datetime
-import storage_spaces_saving as sss
+from bases import storage_spaces_saving as sss
 import sys
 
 sys.setrecursionlimit(2000)
@@ -429,50 +429,50 @@ def get_temperatures_of_first_interpolation(first_interpolation, space, storage_
     #     "p111": first_interpolation[x_max][y_max][z_max] if first_interpolation[x_max][y_max][z_max] != "#" else one_point_interpolation({ "x":x_max, "y":y_max, "z":z_max }, storage_space, storage_temperatures)
     # }
  
-n = int(input("Enter you choice (Spaces - 1/ Interpolation - 2): "))
+# n = int(input("Enter you choice (Spaces - 1/ Interpolation - 2): "))
 
-# Show running time 
-import time
-start_time = time.time()
+# # Show running time 
+# import time
+# start_time = time.time()
 
-if n == 1:
-    # Got total_spaces
-    init_list_of_space(storage_space) 
+# if n == 1:
+#     # Got total_spaces
+#     init_list_of_space(storage_space) 
 
-    # Saving spaces of storage into local file
-    sss.local_write(total_spaces)
-else:
-    total_spaces = sss.local_read()
-    x_max = storage_space["x_max"]
-    y_max = storage_space["y_max"]
-    z_max = storage_space["z_max"] 
-    first_interpolation = get_first_interpolation(sensors, space) # Got first intepolation for any point which has fiction value
-    total_interpolation = [[ ['#' for col in range(z_max+1)] for col in range(y_max+1)] for row in range(x_max+1)] # Return final !
-    for space in total_spaces:
-        x_min = space["x_min"]
-        x_max = space["x_max"]
-        y_min = space["y_min"]
-        y_max = space["y_max"]
-        z_min = space["z_min"]
-        z_max = space["z_max"] 
-        temperatures = get_temperatures_of_first_interpolation(first_interpolation=first_interpolation, space=space, storage_temperatures=storage_temperatures, storage_space=storage_space)
-        for x in range(x_max + 1):
-            for y in range(y_max + 1):
-                for z in range(z_max + 1):
-                    point = {
-                        "x": x,
-                        "y": y,
-                        "z": z
-                    }
-                    total_interpolation[x][y][z] = one_point_interpolation(point, space, temperatures)
+#     # Saving spaces of storage into local file
+#     sss.local_write(total_spaces)
+# else:
+#     total_spaces = sss.local_read()
+#     x_max = storage_space["x_max"]
+#     y_max = storage_space["y_max"]
+#     z_max = storage_space["z_max"] 
+#     first_interpolation = get_first_interpolation(sensors, space) # Got first intepolation for any point which has fiction value
+#     total_interpolation = [[ ['#' for col in range(z_max+1)] for col in range(y_max+1)] for row in range(x_max+1)] # Return final !
+#     for space in total_spaces:
+#         x_min = space["x_min"]
+#         x_max = space["x_max"]
+#         y_min = space["y_min"]
+#         y_max = space["y_max"]
+#         z_min = space["z_min"]
+#         z_max = space["z_max"] 
+#         temperatures = get_temperatures_of_first_interpolation(first_interpolation=first_interpolation, space=space, storage_temperatures=storage_temperatures, storage_space=storage_space)
+#         for x in range(x_max + 1):
+#             for y in range(y_max + 1):
+#                 for z in range(z_max + 1):
+#                     point = {
+#                         "x": x,
+#                         "y": y,
+#                         "z": z
+#                     }
+#                     total_interpolation[x][y][z] = one_point_interpolation(point, space, temperatures)
 
-    # Update temperatures at sensor point again 
-    for sensor in sensors:
-        x_sensor = sensor["location"]["x"]
-        y_sensor = sensor["location"]["y"]
-        z_sensor = sensor["location"]["z"]
-        total_interpolation[x_sensor][y_sensor][z_sensor] = sensor["temperature"]
+#     # Update temperatures at sensor point again 
+#     for sensor in sensors:
+#         x_sensor = sensor["location"]["x"]
+#         y_sensor = sensor["location"]["y"]
+#         z_sensor = sensor["location"]["z"]
+#         total_interpolation[x_sensor][y_sensor][z_sensor] = sensor["temperature"]
 
-    print(total_interpolation)
+#     print(total_interpolation)
 
-print("Runtime is : ", (time.time() - start_time))
+# print("Runtime is : ", (time.time() - start_time))
