@@ -232,10 +232,12 @@ def divide_sensor_list(space, list_of_sensor):
     }
 
 # Init list of secondary sensor
-secondary_sensors = divide_sensor_list(space, sensors)["secondary_sensors"]
+# secondary_sensors = divide_sensor_list(space, sensors)["secondary_sensors"]
+secondary_sensors = []
 
 # Init list of mark for secondary sensor (True is marked)
-mark_of_secondary_sensors = [ False for i in secondary_sensors ]
+# mark_of_secondary_sensors = [ False for i in secondary_sensors ]
+mark_of_secondary_sensors = []
 
 # Init list of space 
 total_spaces = []
@@ -441,6 +443,14 @@ def get_temperatures_of_first_interpolation(first_interpolation, space, storage_
 
 #     # Saving spaces of storage into local file
 #     sss.local_write(total_spaces)
+
+def generate_total_spaces(storage_space):
+    init_list_of_space(storage_space)
+    sss.local_write(total_spaces)
+
+def get_total_spaces():
+    return sss.local_read()
+
 # else:
 #     total_spaces = sss.local_read()
 #     x_max = storage_space["x_max"]
