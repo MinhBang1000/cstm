@@ -8,5 +8,6 @@ class Sensor(models.Model):
     sensor_x = models.IntegerField()
     sensor_y = models.IntegerField()
     sensor_z = models.IntegerField()
+    sensor_temperature = models.FloatField()
     sensor_storage = models.ForeignKey(Storage, on_delete=models.CASCADE, related_name="sensors")
 

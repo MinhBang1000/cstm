@@ -1,5 +1,5 @@
 from datetime import datetime
-from bases import storage_spaces_saving as sss
+from . import storage_spaces_saving as sss
 import sys
 
 sys.setrecursionlimit(2000)
@@ -430,7 +430,15 @@ def get_temperatures_of_first_interpolation(first_interpolation, space, storage_
     #     "p011": first_interpolation[x_min][y_max][z_max] if first_interpolation[x_min][y_max][z_max] != "#" else one_point_interpolation({ "x":x_min, "y":y_max, "z":z_max }, storage_space, storage_temperatures),
     #     "p111": first_interpolation[x_max][y_max][z_max] if first_interpolation[x_max][y_max][z_max] != "#" else one_point_interpolation({ "x":x_max, "y":y_max, "z":z_max }, storage_space, storage_temperatures)
     # }
+
+def generate_total_spaces(storage_space):
+    init_list_of_space(storage_space)
+    sss.local_write(total_spaces)
+
+def get_total_spaces():
+    return sss.local_read()
  
+# Uncommment until here
 # n = int(input("Enter you choice (Spaces - 1/ Interpolation - 2): "))
 
 # # Show running time 
@@ -444,12 +452,7 @@ def get_temperatures_of_first_interpolation(first_interpolation, space, storage_
 #     # Saving spaces of storage into local file
 #     sss.local_write(total_spaces)
 
-def generate_total_spaces(storage_space):
-    init_list_of_space(storage_space)
-    sss.local_write(total_spaces)
 
-def get_total_spaces():
-    return sss.local_read()
 
 # else:
 #     total_spaces = sss.local_read()
@@ -469,6 +472,8 @@ def get_total_spaces():
 #         for x in range(x_max + 1):
 #             for y in range(y_max + 1):
 #                 for z in range(z_max + 1):
+#                     # if x in [x_min, x_max] and y in [y_min,y_max] and z in [z_min, z_max]:
+#                     #     continue
 #                     point = {
 #                         "x": x,
 #                         "y": y,
@@ -483,6 +488,11 @@ def get_total_spaces():
 #         z_sensor = sensor["location"]["z"]
 #         total_interpolation[x_sensor][y_sensor][z_sensor] = sensor["temperature"]
 
-#     print(total_interpolation)
+#     print("First interpolation:\n")
+#     for x in range(37,54):
+#         for y in range(11,23):
+#             for z in range(18, 26):
+#                 if x in [37, 53] and y in [11, 22] and z in [18,25]:
+#                     print("[",x,"]","[",y,"]","[",z,"] = ",first_interpolation[x][y][z])
 
 # print("Runtime is : ", (time.time() - start_time))
