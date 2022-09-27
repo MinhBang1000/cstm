@@ -1,5 +1,4 @@
 from datetime import datetime
-from . import storage_spaces_saving as sss
 import sys
 
 sys.setrecursionlimit(2000)
@@ -433,10 +432,12 @@ def get_temperatures_of_first_interpolation(first_interpolation, space, storage_
 
 def generate_total_spaces(storage_space):
     init_list_of_space(storage_space)
-    sss.local_write(total_spaces)
+    return total_spaces
+    # sss.local_write(total_spaces)
 
 def get_total_spaces():
-    return sss.local_read()
+    pass
+    # return sss.local_read()
  
 # Uncommment until here
 # n = int(input("Enter you choice (Spaces - 1/ Interpolation - 2): "))

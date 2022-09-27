@@ -11,10 +11,9 @@ from bases.solving_code.Sensor import Sensor as SensorClass
 from bases.solving_code.Storage import Storage as StorageClass
 from sensors.models import Sensor
 from accesses.models import Access
-from bases import trilinear_interpolation as trilinear
 from storages.models import Storage
 from bases import errors, permissions as base_permissions
-
+from bases.solving_code.SpaceSaver import SpaceSaver
 
 @api_view(["GET"])
 @permission_classes([base_permissions.IsAnyOne])
@@ -35,7 +34,8 @@ def get_temperatures(request, storage_id):
             access = Access.objects.filter(access_storage = storage.id, access_employee = user.id)
         except:
             raise ValidationError(errors.get_error(errors.CAN_ACCESS_STORAGE))
-    total_spaces = trilinear.get_total_spaces()
+    reader = SpaceSaver()
+    total_spaces = reader.local_read()
     print(total_spaces)
     # Ex1: We have tempory list of sensor 's temperature
     sensors = []

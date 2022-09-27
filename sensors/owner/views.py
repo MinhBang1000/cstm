@@ -9,6 +9,7 @@ from bases import trilinear_interpolation as trilinear
 from sensors.models import Sensor
 from sensors.owner import serializers as sensor_serializers
 from storages.models import Storage
+from bases.solving_code.SpaceSaver import SpaceSaver
 
 
 class SensorViewSet(BaseViewSet):
@@ -53,8 +54,10 @@ class SensorViewSet(BaseViewSet):
                 })
             trilinear.secondary_sensors = trilinear.divide_sensor_list(storage_space, template_sensors)["secondary_sensors"]
             trilinear.mark_of_secondary_sensors = [  False for i in trilinear.secondary_sensors  ]
-            trilinear.generate_total_spaces(storage_space)
-    
+            total_spaces = trilinear.generate_total_spaces(storage_space)
+            saver = SpaceSaver()
+            saver.local_write(total_spaces)
+
     def perform_create(self, serializer):
         x = self.request.data["sensor_x"]
         y = self.request.data["sensor_y"]
