@@ -35,7 +35,7 @@ class Interpolation():
             "c4": self.temperatures.p110 - self.temperatures.p010 - self.temperatures.p100 + self.temperatures.p000,
             "c5": self.temperatures.p011 - self.temperatures.p001 - self.temperatures.p010 + self.temperatures.p000,
             "c6": self.temperatures.p101 - self.temperatures.p001 - self.temperatures.p100 + self.temperatures.p000,
-            "c7": self.temperatures.p111 - self.temperatures.p011 - self.temperatures.p101 - self.temperatures.p110 + self.temperatures.p100 + self.temperatures.p001 + self.temperatures.p010 + self.temperatures.p000
+            "c7": self.temperatures.p111 - self.temperatures.p011 - self.temperatures.p101 - self.temperatures.p110 + self.temperatures.p100 + self.temperatures.p001 + self.temperatures.p010 - self.temperatures.p000
         }
 
     # Find delta parameters

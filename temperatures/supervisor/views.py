@@ -36,16 +36,14 @@ def get_temperatures(request, storage_id):
         except:
             raise ValidationError(errors.get_error(errors.CAN_ACCESS_STORAGE))
     total_spaces = trilinear.get_total_spaces()
-    
+    print(total_spaces)
     # Ex1: We have tempory list of sensor 's temperature
     sensors = []
     sensor_instances = Sensor.objects.filter(sensor_storage = storage.id)
-    print("Sensors:\n")
     for s_item in sensor_instances:
         sensor = SensorClass(s_item)
         sensors.append(sensor)
-        print(sensor)
-
+        
     # List temperatures
     storage_obj = StorageClass(storage)
     interpolation = InterpolationClass(storage=storage_obj, sensors=sensors)

@@ -158,7 +158,7 @@ def c_generators(temperatures):
         "c4": temperatures.get("p110") - temperatures.get("p010") - temperatures.get("p100") + temperatures.get("p000"),
         "c5": temperatures.get("p011") - temperatures.get("p001") - temperatures.get("p010") + temperatures.get("p000"),
         "c6": temperatures.get("p101") - temperatures.get("p001") - temperatures.get("p100") + temperatures.get("p000"),
-        "c7": temperatures.get("p111") - temperatures.get("p011") - temperatures.get("p101") - temperatures.get("p110") + temperatures.get("p100") + temperatures.get("p001") + temperatures.get("p010") + temperatures.get("p000")
+        "c7": temperatures.get("p111") - temperatures.get("p011") - temperatures.get("p101") - temperatures.get("p110") + temperatures.get("p100") + temperatures.get("p001") + temperatures.get("p010") - temperatures.get("p000")
     }
 
 def delta_generators(point, storage_space):
