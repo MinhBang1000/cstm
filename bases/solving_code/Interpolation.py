@@ -10,19 +10,20 @@ class Interpolation():
     storage = None
     temperatures = None
     # Result !
+    number_of_blocks = 0
+    mark_interpolation = None # Check sensor have been multiple when we loop 3 dimension
     first_interpolation = None
-    total_interpolation = None 
 
     # Create first interpolation
     def __init__(self, sensors, storage):
         self.sensors = sensors 
         self.storage = storage
         self.first_interpolation = [[ ['#' for col in range(self.storage.z_max +1)] for col in range(self.storage.y_max+1)] for row in range(self.storage.x_max+1)]
-        self.total_interpolation = [[ ['#' for col in range(self.storage.z_max +1)] for col in range(self.storage.y_max+1)] for row in range(self.storage.x_max+1)]
+        self.mark_interpolation = [[ [True for col in range(self.storage.z_max +1)] for col in range(self.storage.y_max+1)] for row in range(self.storage.x_max+1)]
+        self.number_of_blocks = (self.storage.x_max +1)*(self.storage.y_max +1)*(self.storage.z_max +1)
         # Fill existed temperature
         for sensor in self.sensors:
             self.first_interpolation[sensor.x][sensor.y][sensor.z] = sensor.temperature
-            self.total_interpolation[sensor.x][sensor.y][sensor.z] = sensor.temperature
         self.temperatures = Temperature(self.sensors, self.storage)
 
     # Find c_parameters
@@ -52,6 +53,7 @@ class Interpolation():
     
     # Prepare for unknown point of secondary sensor - Call it after init this obj and called for c_parameters
     def prepare_unknown_sensors(self, space):
+        count = 0
         x_lst = [ space.get("x_min"), space.get("x_max") ]
         y_lst = [ space.get("y_min"), space.get("y_max") ]
         z_lst = [ space.get("z_min"), space.get("z_max") ]
@@ -65,6 +67,7 @@ class Interpolation():
                     }
                     if self.first_interpolation[x][y][z] != "#":
                         continue
+                    count += 1
                     self.generate_delta(point, {
                         "x_min":self.storage.x_min,
                         "y_min":self.storage.y_min,
@@ -74,7 +77,8 @@ class Interpolation():
                         "z_max":self.storage.z_max
                     })
                     self.first_interpolation[x][y][z] = self.generate_temperature(point)
-    
+        return count
+
     # Find only a point's temperature
     def generate_temperature(self, point):
         value_of_point = self.c_parameters.get("c0") + (self.c_parameters.get("c1")*self.delta_parameters.get("delta_x")) + (self.c_parameters.get("c2")*self.delta_parameters.get("delta_y")) + (self.c_parameters.get("c3")*self.delta_parameters.get("delta_z")) + (self.c_parameters.get("c4")*self.delta_parameters.get("delta_x")*self.delta_parameters.get("delta_y")) + (self.c_parameters.get("c5")*self.delta_parameters.get("delta_y")*self.delta_parameters.get("delta_z")) + (self.c_parameters.get("c6")*self.delta_parameters.get("delta_z")*self.delta_parameters.get("delta_x")) + (self.c_parameters.get("c7")*self.delta_parameters.get("delta_x")*self.delta_parameters.get("delta_y")*self.delta_parameters.get("delta_z"))
