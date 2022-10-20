@@ -5,11 +5,14 @@ from rest_framework.decorators import api_view, permission_classes
 # Customize
 from bases.views import BaseViewSet
 from bases import errors, permissions as base_permissions
-from bases import trilinear_interpolation as trilinear
 from sensors.models import Sensor
 from sensors.owner import serializers as sensor_serializers
 from storages.models import Storage
 from bases.solving_code.SpaceSaver import SpaceSaver
+from bases.solving_code.Space import Space as SpaceClass
+from bases.solving_code.Storage import Storage as StorageClass 
+from bases.solving_code.Sensor import Sensor as SensorClass
+from bases.solving_code.SpaceDividing import SpaceDividing as SpaceDividingClass
 
 
 class SensorViewSet(BaseViewSet):
@@ -32,31 +35,26 @@ class SensorViewSet(BaseViewSet):
     def caculating_total_spaces(self, storage):
         if self.has_enough_primary_sensor(storage) == True:
             # Init whole storage space
-            storage_space = {
-                "x_min": 0,
-                "y_min": 0,
-                "z_min": 0,
-                "x_max": storage.storage_length,
-                "y_max": storage.storage_width,
-                "z_max": storage.storage_height
-            }
+            storage_obj = StorageClass(storage)
+            storage_space = SpaceClass(0,0,0,storage_obj.x_max,storage_obj.y_max,storage_obj.z_max)
+            print("Storage space:")
+            print(storage_space.get_space())
             # Init variable was needing
-            list_of_sensor = Sensor.objects.filter(sensor_storage = storage.id)
-            template_sensors = []
-            for sensor in list_of_sensor:
-                template_sensors.append({
-                    "location": {
-                        "x":sensor.sensor_x,
-                        "y":sensor.sensor_y,
-                        "z":sensor.sensor_z
-                    },
-                    "temperature": 0
-                })
-            trilinear.secondary_sensors = trilinear.divide_sensor_list(storage_space, template_sensors)["secondary_sensors"]
-            trilinear.mark_of_secondary_sensors = [  False for i in trilinear.secondary_sensors  ]
-            total_spaces = trilinear.generate_total_spaces(storage_space)
+            sensors = []
+            sensor_instances = Sensor.objects.filter(sensor_storage = storage.id)
+            for s_item in sensor_instances:
+                sensor = SensorClass(s_item)
+                print(sensor.get_sensor())
+                sensors.append(sensor)
+            smaller_spaces = SpaceDividingClass(storage_space) 
+            # To avoid use again any part previously
+            smaller_spaces.reset_for_sure()  
+            smaller_spaces.generate_secondary_sensors(sensors)
+            smaller_spaces.generate_mark_secondary_sensors()
+            smaller_spaces.generate_total_spaces()
             saver = SpaceSaver()
-            saver.local_write(total_spaces)
+            saver_spaces = [ space.get_space() for space in smaller_spaces.spaces ]
+            saver.local_write(saver_spaces, storage.id)
 
     def perform_create(self, serializer):
         x = self.request.data["sensor_x"]

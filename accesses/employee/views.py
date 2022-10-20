@@ -17,6 +17,7 @@ class AccessViewSet(BaseViewSet):
 
     permission_classes = [ bases_permissions.IsAnonymus ]
     filterset_fields = [ 
+        "access_storage__id",
         "access_storage__storage_code",
         "access_storage__storage_name"
     ]
@@ -42,7 +43,7 @@ class AccessViewSet(BaseViewSet):
             storage = Storage.objects.get( storage_code = self.request.data["access_storage_code"] )
         except:
             raise ValidationError(errors.get_error(errors.NOT_FOUND_STORAGE))
-        serializer.save( access_employee = employee, access_storage = storage )
+        serializer.save( access_employee = employee, access_storage = storage, access_accept = False )
 
     def perform_update(self, serializer):
         instance = serializer.save()
@@ -50,4 +51,7 @@ class AccessViewSet(BaseViewSet):
             instance.access_accept = False
             instance.save()
             raise ValidationError(errors.get_error(errors.CAN_NOT_ACCEPT))
+        if instance.access_role == True:
+            self.request.user.role = instance.access_role
+            self.request.user.save()
         

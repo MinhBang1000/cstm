@@ -10,43 +10,59 @@ class Temperature():
 
     isvalid = True
 
-    def __init__(self, sensors, storage):
-        count = 0
-        for sensor in sensors:
-            if sensor.x == storage.x_min and sensor.y == storage.y_min and sensor.z == storage.z_min:
-                count += 1
-                self.p000 = sensor.temperature
+    # def generate_temperatures(self, sensors, storage):
+    #     count = 0
+    #     for sensor in sensors:
+    #         if sensor.x == storage.x_min and sensor.y == storage.y_min and sensor.z == storage.z_min:
+    #             count += 1
+    #             self.p000 = sensor.temperature
 
-            elif sensor.x == storage.x_max and sensor.y == storage.y_min and sensor.z == storage.z_min:
-                count += 1
-                self.p100 = sensor.temperature
+    #         elif sensor.x == storage.x_max and sensor.y == storage.y_min and sensor.z == storage.z_min:
+    #             count += 1
+    #             self.p100 = sensor.temperature
 
-            elif sensor.x == storage.x_min and sensor.y == storage.y_max and sensor.z == storage.z_min:
-                count += 1
-                self.p010 = sensor.temperature
+    #         elif sensor.x == storage.x_min and sensor.y == storage.y_max and sensor.z == storage.z_min:
+    #             count += 1
+    #             self.p010 = sensor.temperature
 
-            elif sensor.x == storage.x_max and sensor.y == storage.y_max and sensor.z == storage.z_min:
-                count += 1
-                self.p110 = sensor.temperature
+    #         elif sensor.x == storage.x_max and sensor.y == storage.y_max and sensor.z == storage.z_min:
+    #             count += 1
+    #             self.p110 = sensor.temperature
 
-            elif sensor.x == storage.x_min and sensor.y == storage.y_min and sensor.z == storage.z_max:
-                count += 1
-                self.p001 = sensor.temperature
+    #         elif sensor.x == storage.x_min and sensor.y == storage.y_min and sensor.z == storage.z_max:
+    #             count += 1
+    #             self.p001 = sensor.temperature
 
-            elif sensor.x == storage.x_max and sensor.y == storage.y_min and sensor.z == storage.z_max:
-                count += 1
-                self.p101 = sensor.temperature
+    #         elif sensor.x == storage.x_max and sensor.y == storage.y_min and sensor.z == storage.z_max:
+    #             count += 1
+    #             self.p101 = sensor.temperature
 
-            elif sensor.x == storage.x_min and sensor.y == storage.y_max and sensor.z == storage.z_max:
-                count += 1
-                self.p011 = sensor.temperature
+    #         elif sensor.x == storage.x_min and sensor.y == storage.y_max and sensor.z == storage.z_max:
+    #             count += 1
+    #             self.p011 = sensor.temperature
 
-            elif sensor.x == storage.x_max and sensor.y == storage.y_max and sensor.z == storage.z_max:
-                count += 1
-                self.p111 = sensor.temperature
+    #         elif sensor.x == storage.x_max and sensor.y == storage.y_max and sensor.z == storage.z_max:
+    #             count += 1
+    #             self.p111 = sensor.temperature
 
-        if count != 8:
-            self.isvalid = False 
+    #     if count != 8:
+    #         self.isvalid = False 
+
+    def generate_temperatures(self, first_interpolation, storage):
+        x_min = storage.x_min 
+        y_min = storage.y_min
+        z_min = storage.z_min 
+        x_max = storage.x_max
+        y_max = storage.y_max
+        z_max = storage.z_max
+        self.p000 = first_interpolation[x_min][y_min][z_min]
+        self.p100 = first_interpolation[x_max][y_min][z_min]
+        self.p110 = first_interpolation[x_max][y_max][z_min]
+        self.p001 = first_interpolation[x_min][y_min][z_max]
+        self.p101 = first_interpolation[x_max][y_min][z_max]
+        self.p010 = first_interpolation[x_min][y_max][z_min]
+        self.p011 = first_interpolation[x_min][y_max][z_max]
+        self.p111 = first_interpolation[x_max][y_max][z_max]
 
     def __str__(self) -> str:
         return str({

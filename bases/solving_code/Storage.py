@@ -11,4 +11,7 @@ class Storage():
         self.y_max = model_instance.storage_width
         self.z_max = model_instance.storage_height
 
-    
+    def init_storage(self, x_max, y_max, z_max):
+        self.x_max = x_max
+        self.y_max = y_max
+        self.z_max = z_max

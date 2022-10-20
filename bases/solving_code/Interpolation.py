@@ -1,5 +1,5 @@
-from bases.trilinear_interpolation import delta_generators
 from .Temperature import Temperature
+from .Space import Space
 
 class Interpolation():
     # Argument !
@@ -24,7 +24,21 @@ class Interpolation():
         # Fill existed temperature
         for sensor in self.sensors:
             self.first_interpolation[sensor.x][sensor.y][sensor.z] = sensor.temperature
-        self.temperatures = Temperature(self.sensors, self.storage)
+        self.temperatures = Temperature()
+        self.temperatures.generate_temperatures(self.first_interpolation, self.storage)
+
+    # Call after first_interpolation have called
+    def set_temperatures(self, space_of_storage): 
+        x_min = space_of_storage["x_min"]
+        x_max = space_of_storage["x_max"]
+        y_min = space_of_storage["y_min"]
+        y_max = space_of_storage["y_max"]
+        z_min = space_of_storage["z_min"]
+        z_max = space_of_storage["z_max"]
+        space = Space(x_min, y_min, z_min, x_max, y_max, z_max)
+        self.temperatures = Temperature()
+        self.temperatures.generate_temperatures(self.first_interpolation, space)
+        print(self.temperatures)
 
     # Find c_parameters
     def generate_c(self):
@@ -54,6 +68,7 @@ class Interpolation():
     # Prepare for unknown point of secondary sensor - Call it after init this obj and called for c_parameters
     def prepare_unknown_sensors(self, space):
         count = 0
+        print(space)
         x_lst = [ space.get("x_min"), space.get("x_max") ]
         y_lst = [ space.get("y_min"), space.get("y_max") ]
         z_lst = [ space.get("z_min"), space.get("z_max") ]
@@ -65,6 +80,7 @@ class Interpolation():
                         "y": y,
                         "z": z
                     }
+                    print(point)
                     if self.first_interpolation[x][y][z] != "#":
                         continue
                     count += 1
@@ -77,6 +93,7 @@ class Interpolation():
                         "z_max":self.storage.z_max
                     })
                     self.first_interpolation[x][y][z] = self.generate_temperature(point)
+                    print("["+str(x)+"]["+str(y)+"]["+str(z)+"] = "+str(self.first_interpolation[x][y][z]))
         return count
 
     # Find only a point's temperature

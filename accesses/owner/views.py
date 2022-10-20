@@ -16,6 +16,7 @@ class AccessViewSet(BaseViewSet):
 
     permission_classes = [ bases_permissions.IsOwnerAdmin ]
     filterset_fields = [ 
+        "access_storage__id",
         "access_storage__storage_code",
         "access_storage__storage_name"
     ]
@@ -41,7 +42,10 @@ class AccessViewSet(BaseViewSet):
             raise ValidationError(errors.get_error(errors.NOT_FOUND_EMPLOYEE))
         if employee.role != "Anonymous":
             raise ValidationError(errors.get_error(errors.ONE_MAN_TO_ONE_ROLE))
-        serializer.save( access_employee = employee )
+        instance = serializer.save( access_employee = employee )
+        if instance.access_accept == True:
+            instance.access_accept = False 
+            instance.save()
 
     def perform_update(self, serializer):
         instance = serializer.save()

@@ -10,6 +10,12 @@ class Sensor():
         self.z = model_instance.sensor_z
         self.temperature = model_instance.sensor_temperature
 
+    def init_sensor(self, x, y, z, temperature):
+        self.x = x
+        self.y = y
+        self.z = z
+        self.temperature = temperature  
+
     def __str__(self) -> str:
         return str({
             "x": self.x,
@@ -17,3 +23,11 @@ class Sensor():
             "z": self.z,
             "temperature": self.temperature
         })
+
+    def get_sensor(self):
+        return {
+            "x": self.x,
+            "y": self.y,
+            "z": self.z,
+            "temperature": self.temperature
+        }
