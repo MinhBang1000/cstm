@@ -54,6 +54,7 @@ INSTALLED_APPS = [
     'branches',
     'storages',
     'sensors',
+    'pallets',
     'temperatures',
     'notifications',
 ]
