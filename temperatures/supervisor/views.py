@@ -320,7 +320,7 @@ def get_list_temperatures(request, storage_id):
     
     # Read for total space which had saved in server
     reader = SpaceSaver()
-    total_spaces = reader.local_read()
+    total_spaces = reader.local_read(storage.id)
 
     # Add sensor in Database to Sensor Model 
     sensors = []

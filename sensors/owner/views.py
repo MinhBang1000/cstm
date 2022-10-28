@@ -1,3 +1,7 @@
+# Python 
+import requests
+import json
+
 # Rest framework
 from rest_framework.serializers import ValidationError
 from rest_framework.decorators import api_view, permission_classes
@@ -31,6 +35,21 @@ class SensorViewSet(BaseViewSet):
             if sensor.sensor_x in [ storage.storage_length, 0 ] and sensor.sensor_y in [ storage.storage_width, 0 ] and sensor.sensor_z in [ storage.storage_height, 0 ]:
                 count += 1
         return count == 8
+
+    def call_external_api(self):
+        username = 'tester@kholanhctu'
+        password = 'tester@123'
+        url = 'https://fake-sensors.herokuapp.com/sensors/'
+        r = requests.get(url=url, auth=(username, password))
+        r_status_code = r.status_code
+        if r_status_code == 200:
+            pass
+        else:
+            print(r_status_code)
+    
+    def list(self, request, *args, **kwargs):
+        self.call_external_api()
+        return super().list(request, *args, **kwargs)
 
     def caculating_total_spaces(self, storage):
         if self.has_enough_primary_sensor(storage) == True:
