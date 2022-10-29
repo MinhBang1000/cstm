@@ -21,6 +21,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('users/', include('users.employee.urls')),
     path('accesses/', include('accesses.employee.urls')),
+    path('user_permissions/', include('userpermissions.administrator.urls')),
     
     # Supervisor
     path('supervisor/storages/', include('storages.supervisor.urls')),
@@ -40,4 +41,5 @@ urlpatterns = [
     # Administrator
     path('administrator/provinces/', include('provinces.administrator.urls')),
     path('administrator/districts/', include('districts.administrator.urls')),
+    path('administrator/roles/', include('roles.administrator.urls')),
 ]

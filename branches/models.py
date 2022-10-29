@@ -1,5 +1,8 @@
 # Django
 from django.db import models
+from django.contrib.auth import get_user_model
+
+User = get_user_model()
 
 # Customize
 from districts.models import District
@@ -10,5 +13,6 @@ class Branch(models.Model):
     branch_street = models.CharField(max_length=250)
     branch_district = models.ForeignKey(District, on_delete=models.CASCADE, related_name="district_branches")
     branch_company = models.ForeignKey(Company, on_delete=models.CASCADE, related_name="company_branches")
+    branch_manager = models.OneToOneField(User, blank=True, null=True, on_delete=models.CASCADE, primary_key = False, related_name="manager_branch")
     branch_created = models.DateTimeField(auto_now_add=True)
     branch_updated = models.DateTimeField(auto_now=True)

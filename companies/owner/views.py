@@ -10,7 +10,7 @@ from companies.models import Company
 class CompanyViewSet(BaseViewSet):
 
     serializer_class = owner_serializer.CompanySerializer
-    permission_classes = [ base_permissions.IsOwnerAdmin ]
+    # permission_classes = [ base_permissions.IsOwnerAdmin ]
     filterset_fields = [ "id", "company_name", "company_street", "company_district__district_name", "company_district__district_province__province_name" ]
     
     def get_queryset(self):
@@ -18,9 +18,6 @@ class CompanyViewSet(BaseViewSet):
     
     def perform_create(self, serializer):
         user = self.request.user
-        if user.role == "Anonymus":
-            user.role = "Owner"
-            user.save()
         serializer.save( company_owner = user )
 
     def update(self, request, *args, **kwargs):

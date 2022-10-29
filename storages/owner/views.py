@@ -7,7 +7,6 @@ from storages.models import Storage
 class StorageViewSet(BaseViewSet):
     
     serializer_class = storage_serializer.StorageSerializer
-    permission_classes = [base_permissions.IsOwnerAdmin]
     filterset_fields = [ 
             "id",
             "storage_name", 
@@ -27,7 +26,7 @@ class StorageViewSet(BaseViewSet):
 
     def perform_create(self, serializer):
         user = self.request.user
-        storage = serializer.save()
+        storage = serializer.save(storage_code = 'default-code-will-be-replaced!', storage_manager = user)
         storage_code = user.email + "@" + str(storage.id)
         storage_code = base64_encoding(storage_code)
         storage.storage_code = storage_code

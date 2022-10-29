@@ -20,14 +20,38 @@ import string
 from users.employee.serializers import ProfileSerializer, ResetCodeSerializer, ForgotPasswordSerializer, MyTokenObtainPairSerializer, RegisterSerializer
 from users.models import ResetCode 
 from bases import errors, views as base_views
+from roles.models import Role
+from userpermissions.models import UserPermission
 
 
 class MyTokenObtainPairView(TokenObtainPairView):
     serializer_class = MyTokenObtainPairSerializer
 
 @api_view(["POST"])
+@permission_classes([permissions.IsAuthenticated])
 def register(request):
     data = request.data
+    role = data.get("role", None)
+    # Can't create user with administrator role
+    if role == 1 or role == None:
+        raise ValidationError(errors.get_error(errors.INVALID_ROLE))
+    # Check creater 's role
+    creater = request.user
+    if creater.role.id == 1: # Administrator
+        if role not in [2,3,4,5]:
+            raise ValidationError(errors.get_error(errors.NOT_CREATE_USER_ROLE))
+    elif creater.role.id == 2: # Owner
+        if role not in [3,4,5]:
+            raise ValidationError(errors.get_error(errors.NOT_CREATE_USER_ROLE))
+    elif creater.role.id == 3: # Branch Manager
+        if role not in [4,5]:
+            raise ValidationError(errors.get_error(errors.NOT_CREATE_USER_ROLE))
+    elif creater.role.id == 4: # Storage Manager
+        if role not in [5]:
+            raise ValidationError(errors.get_error(errors.NOT_CREATE_USER_ROLE))
+    else:   # Supervisor
+        raise ValidationError(errors.get_error(errors.NOT_CREATE_USER_ROLE))
+    # Check email exists
     try:
         user = get_user_model().objects.get(email=request.data["email"])
     except:
@@ -35,6 +59,7 @@ def register(request):
     finally:
         if user:
             raise ValidationError(errors.get_error(errors.EMAIL_EXSITS))
+    # Check password and confirm 
     if data["password"] != data["password_confirm"]:
         raise ValidationError(errors.get_error(errors.PASSWORD_CONFIRM))
     serializer = RegisterSerializer(data=data)
@@ -42,6 +67,18 @@ def register(request):
     user = get_user_model().objects.create_user(**serializer.validated_data)
     user.set_password(data["password"])
     user.profile_code = base_views.base64_encoding(user.email)
+    # Creater ID
+    user.employer = creater.id
+    # Supervisor of
+    if creater.role.id < 5 and role == 5:
+        if data.get('supervisor_of', None) == None:
+            raise ValidationError(errors.get_error(errors.HAVE_STORAGE_ID_SUPERVISOR_OF))
+        else:
+            user.supervisor_of = data["supervisor_of"]
+    # Create permissions for new user
+    permissions = user.role.role_permissions.all()
+    for permission in permissions:
+        UserPermission.objects.create(person=user, permission=permission)
     user.save()
     return Response(status=status.HTTP_201_CREATED)
 
@@ -119,7 +156,7 @@ def retrieve_profile(request):
 def increase_permission(request):
     user = request.user
     user.is_superuser = True
-    user.role = "Administrator"
+    user.role = Role.objects.get(pk=1)
     user.is_staff = True
     user.save()
     return Response(status=status.HTTP_200_OK)

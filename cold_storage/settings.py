@@ -55,6 +55,10 @@ INSTALLED_APPS = [
     'storages',
     'sensors',
     'pallets',
+    'roles',
+    'missions',
+    'permissions',
+    'userpermissions',
     'temperatures',
     'notifications',
 ]

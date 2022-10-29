@@ -1,6 +1,5 @@
 # Python 
 import requests
-import json
 
 # Rest framework
 from rest_framework.serializers import ValidationError
@@ -21,11 +20,12 @@ from bases.solving_code.SpaceDividing import SpaceDividing as SpaceDividingClass
 
 class SensorViewSet(BaseViewSet):
     serializer_class = sensor_serializers.SensorSerializer
-    permission_classes = [base_permissions.IsOwnerAdmin]
+    # permission_classes = [base_permissions.IsOwnerAdmin]
     filterset_fields = [ "sensor_x", "sensor_y", "sensor_z", "sensor_storage__storage_name", "sensor_storage__storage_code", "sensor_storage__id" ]
     
     def get_queryset(self):
-        return Sensor.objects.filter(sensor_storage__storage_branch__branch_company__company_owner = self.request.user)
+        # return Sensor.objects.filter(sensor_storage__storage_manager = self.request.user)
+        return Sensor.objects.all()
 
     def has_enough_primary_sensor(self, storage):
         sensors = Sensor.objects.filter(sensor_storage = storage.id)
@@ -48,7 +48,7 @@ class SensorViewSet(BaseViewSet):
             print(r_status_code)
     
     def list(self, request, *args, **kwargs):
-        self.call_external_api()
+        # self.call_external_api()
         return super().list(request, *args, **kwargs)
 
     def caculating_total_spaces(self, storage):
@@ -86,7 +86,7 @@ class SensorViewSet(BaseViewSet):
             storage = Storage.objects.get(pk = self.request.data["sensor_storage_id"])
         except:
             raise ValidationError(errors.get_error(errors.NOT_FOUND_STORAGE))
-        if storage.storage_branch.branch_company.company_owner != self.request.user:
+        if storage.storage_manager != self.request.user:
             raise ValidationError(errors.get_error(errors.NOT_FOUND_STORAGE))
         # Create a new instance for sensor
         super().perform_create(serializer)

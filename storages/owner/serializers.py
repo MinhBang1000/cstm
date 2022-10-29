@@ -1,3 +1,7 @@
+# Django
+from asyncore import write
+from django.contrib.auth import get_user_model
+
 # Rest framework
 from rest_framework import serializers
 
@@ -7,6 +11,9 @@ from districts.models import District
 from storages.models import Storage
 from branches.owner import serializers as branch_serializer
 from districts.administrator import serializers as district_serializer
+from users.employee import serializers as employee_serializers
+
+User = get_user_model()
 
 class StorageSerializer(serializers.ModelSerializer):
 
@@ -22,6 +29,7 @@ class StorageSerializer(serializers.ModelSerializer):
         write_only = True,
         source = "storage_district"
     )
+    storage_manager = employee_serializers.EmployeeSerializer(read_only = True)
 
     class Meta:
         model = Storage 
@@ -36,6 +44,7 @@ class StorageSerializer(serializers.ModelSerializer):
             "storage_branch",
             "storage_branch_id",
             "storage_district",
-            "storage_district_id" 
+            "storage_district_id",
+            "storage_manager"
         ]
         ready_only_fields = ["storage_code"]
