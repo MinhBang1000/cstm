@@ -28,6 +28,7 @@ class MyTokenObtainPairView(TokenObtainPairView):
     serializer_class = MyTokenObtainPairSerializer
 
 @api_view(["POST"])
+@permission_classes([])
 def create_admin(request):
     data = request.data
     # Check email exists
