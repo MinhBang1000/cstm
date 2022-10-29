@@ -28,6 +28,30 @@ class MyTokenObtainPairView(TokenObtainPairView):
     serializer_class = MyTokenObtainPairSerializer
 
 @api_view(["POST"])
+def create_admin(request):
+    data = request.data
+    # Check email exists
+    try:
+        user = get_user_model().objects.get(email=request.data["email"])
+    except:
+        user = None
+    finally:
+        if user:
+            raise ValidationError(errors.get_error(errors.EMAIL_EXSITS))
+    # Check password and confirm 
+    if data["password"] != data["password_confirm"]:
+        raise ValidationError(errors.get_error(errors.PASSWORD_CONFIRM))
+    serializer = RegisterSerializer(data=data)
+    serializer.is_valid(raise_exception=True)
+    user = get_user_model().objects.create_user(**serializer.validated_data)
+    user.set_password(data["password"])
+    user.profile_code = base_views.base64_encoding(user.email)
+    # Create permissions for new user
+    user.save()
+    return Response(status=status.HTTP_201_CREATED)
+
+
+@api_view(["POST"])
 @permission_classes([permissions.IsAuthenticated])
 def register(request):
     data = request.data
