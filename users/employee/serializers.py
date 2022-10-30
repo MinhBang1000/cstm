@@ -20,8 +20,8 @@ class ProfileSerializer(serializers.ModelSerializer):
     role = RoleSerializer()
     class Meta:
         model = get_user_model()
-        fields = [ 'id','email', 'first_name', 'last_name', 'dob', 'phone_no','role','profile_code' ]
-        read_only_fields = [ 'id', 'email', 'first_name', 'last_name', 'dob', 'phone_no','role','profile_code' ]
+        fields = [ 'id','email', 'first_name', 'last_name', 'dob', 'phone_no','role','profile_code']
+        read_only_fields = [ 'id', 'email', 'first_name', 'last_name', 'dob', 'phone_no','role','profile_code','employer' ]
 
 class RegisterSerializer(serializers.ModelSerializer):
 
@@ -42,8 +42,7 @@ class RegisterSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = get_user_model()
-        fields = [ "email", "password", "dob", "phone_no", "first_name", "last_name", "role", "employer"]
-        read_only_fields = [ "employer" ]
+        fields = [ "email", "password", "dob", "phone_no", "first_name", "last_name", "role"]
 
 class ForgotPasswordSerializer(serializers.ModelSerializer):
     code = serializers.StringRelatedField()

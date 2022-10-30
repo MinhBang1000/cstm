@@ -20,12 +20,8 @@ urlpatterns = [
     # General
     path('admin/', admin.site.urls),
     path('users/', include('users.employee.urls')),
-    path('accesses/', include('accesses.employee.urls')),
-    path('user_permissions/', include('userpermissions.administrator.urls')),
     
     # Supervisor
-    path('supervisor/storages/', include('storages.supervisor.urls')),
-    path('supervisor/areas/', include('areas.supervisor.urls')),
     path('supervisor/storage_temperatures/', include('temperatures.supervisor.urls')),
 
     # Manager
@@ -35,11 +31,12 @@ urlpatterns = [
     path('owner/storages/', include('storages.owner.urls')),
     path('owner/companies/', include('companies.owner.urls')),  
     path('owner/branches/', include('branches.owner.urls')),
-    path('owner/accesses/', include('accesses.owner.urls')),
     path('owner/sensors/', include('sensors.owner.urls')),
 
     # Administrator
     path('administrator/provinces/', include('provinces.administrator.urls')),
     path('administrator/districts/', include('districts.administrator.urls')),
     path('administrator/roles/', include('roles.administrator.urls')),
+    path('administrator/entities/', include('entities.administrator.urls')),
+    path('administrator/permissions/', include('permissions.administrator.urls')),
 ]

@@ -49,8 +49,6 @@ class CustomUser(AbstractUser):
     phone_no = models.CharField(max_length=10)
     role = models.ForeignKey(Role, on_delete=models.CASCADE,  blank=True, null=True, related_name="role_users")
     profile_code = models.CharField(max_length=64, unique=True, null=True, blank=True)
-    employer = models.IntegerField(default = 0) # Who created it
-    supervisor_of = models.IntegerField(default = 0)
 
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = []

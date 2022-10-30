@@ -10,7 +10,6 @@ from bases.solving_code.Interpolation import Interpolation as InterpolationClass
 from bases.solving_code.Sensor import Sensor as SensorClass
 from bases.solving_code.Storage import Storage as StorageClass
 from sensors.models import Sensor
-from accesses.models import Access
 from storages.models import Storage
 from bases import errors, permissions as base_permissions
 from bases.solving_code.SpaceSaver import SpaceSaver
@@ -40,10 +39,7 @@ def get_temperatures_testing(request, storage_id):
         owner = True
     else:
         # Is employee 
-        try:
-            access = Access.objects.filter(access_storage = storage.id, access_employee = user.id, access_accept = True)
-        except:
-            raise ValidationError(errors.get_error(errors.CAN_ACCESS_STORAGE))
+        pass
 
     # Read for total space which had saved in server
     reader = SpaceSaver()
@@ -120,10 +116,7 @@ def get_temperatures(request, storage_id):
         owner = True
     else:
         # Is employee 
-        try:
-            access = Access.objects.filter(access_storage = storage.id, access_employee = user.id, access_accept = True)
-        except:
-            raise ValidationError(errors.get_error(errors.CAN_ACCESS_STORAGE))
+        pass
     
     # Read for total space which had saved in server
     reader = SpaceSaver()
@@ -218,10 +211,7 @@ def get_face_temperatures(request, storage_id):
         owner = True
     else:
         # Is employee 
-        try:
-            access = Access.objects.filter(access_storage = storage.id, access_employee = user.id, access_accept = True)
-        except:
-            raise ValidationError(errors.get_error(errors.CAN_ACCESS_STORAGE))
+        pass
     
     # Read for total space which had saved in server
     reader = SpaceSaver()
@@ -313,10 +303,7 @@ def get_list_temperatures(request, storage_id):
         owner = True
     else:
         # Is employee 
-        try:
-            access = Access.objects.filter(access_storage = storage.id, access_employee = user.id, access_accept = True)
-        except:
-            raise ValidationError(errors.get_error(errors.CAN_ACCESS_STORAGE))
+        pass
     
     # Read for total space which had saved in server
     reader = SpaceSaver()

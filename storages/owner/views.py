@@ -5,7 +5,7 @@ from storages.owner import serializers as storage_serializer
 from storages.models import Storage
 
 class StorageViewSet(BaseViewSet):
-    
+    queryset = Storage.objects.all()    
     serializer_class = storage_serializer.StorageSerializer
     filterset_fields = [ 
             "id",
@@ -18,11 +18,11 @@ class StorageViewSet(BaseViewSet):
             "storage_branch__branch_name",
             "storage_branch__branch_company__company_name",
             "storage_district__district_name",
-            "storage_district__district_province__province_name"
+            "storage_district__district_province__province_name",
+            "storage_manager__email",
+            "storage_branch__branch_manager",
+            "storage_branch__branch_company__company_owner__email"
         ]
-    
-    def get_queryset(self):
-        return Storage.objects.filter( storage_branch__branch_company__company_owner = self.request.user )
 
     def perform_create(self, serializer):
         user = self.request.user

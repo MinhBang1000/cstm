@@ -44,8 +44,6 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
     'django_filters',
-    'areas',
-    'accesses',
     'bases',
     'users',
     'provinces',
@@ -56,11 +54,11 @@ INSTALLED_APPS = [
     'sensors',
     'pallets',
     'roles',
-    'missions',
     'permissions',
-    'userpermissions',
-    'temperatures',
-    'notifications',
+    'entities',
+    'branch_accesses',
+    'storage_accesses',
+    'temperatures'
 ]
 
 MIDDLEWARE = [

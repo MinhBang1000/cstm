@@ -7,12 +7,11 @@ from bases.views import BaseViewSet
 from bases import errors, permissions as base_permissions
 from pallets.manager import serializers as pallet_serializers
 from pallets.models import Pallet
-from accesses.models import Access
 
 class PalletViewSet(BaseViewSet):
     queryset = Pallet.objects.all()
     serializer_class = pallet_serializers.PalletSerializer
-    permission_classes = [ base_permissions.IsOwnerManager ]
+    # permission_classes = [ base_permissions.IsOwnerManager ]
     filterset_fields = [ "id","pallet_x","pallet_y","pallet_y","pallet_length","pallet_width","pallet_height","pallet_drawers","pallet_storage__id" ]
 
     def list(self, request, *args, **kwargs):

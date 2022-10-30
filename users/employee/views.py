@@ -12,6 +12,8 @@ from django.contrib.auth import get_user_model
 from django.core.mail import send_mail
 from django.conf import settings
 
+User = get_user_model()
+
 # Library Python
 import random 
 import string
@@ -21,7 +23,6 @@ from users.employee.serializers import ProfileSerializer, ResetCodeSerializer, F
 from users.models import ResetCode 
 from bases import errors, views as base_views
 from roles.models import Role
-from userpermissions.models import UserPermission
 
 
 class MyTokenObtainPairView(TokenObtainPairView):
@@ -57,33 +58,28 @@ def create_admin(request):
 def register(request):
     data = request.data
     role = data.get("role", None)
-    # Can't create user with administrator role
-    if role == 1 or role == None:
-        raise ValidationError(errors.get_error(errors.INVALID_ROLE))
-    # Check creater 's role
-    creater = request.user
-    if creater.role.id == 1: # Administrator
-        if role not in [2,3,4,5]:
-            raise ValidationError(errors.get_error(errors.NOT_CREATE_USER_ROLE))
-    elif creater.role.id == 2: # Owner
-        if role not in [3,4,5]:
-            raise ValidationError(errors.get_error(errors.NOT_CREATE_USER_ROLE))
-    elif creater.role.id == 3: # Branch Manager
-        if role not in [4,5]:
-            raise ValidationError(errors.get_error(errors.NOT_CREATE_USER_ROLE))
-    elif creater.role.id == 4: # Storage Manager
-        if role not in [5]:
-            raise ValidationError(errors.get_error(errors.NOT_CREATE_USER_ROLE))
-    else:   # Supervisor
-        raise ValidationError(errors.get_error(errors.NOT_CREATE_USER_ROLE))
-    # Check email exists
+    if role == None:
+        raise ValidationError(errors.get_error(errors.INVALID_ROLE))     
     try:
-        user = get_user_model().objects.get(email=request.data["email"])
+        role_obj = Role.objects.get(pk = role)
     except:
-        user = None
-    finally:
-        if user:
-            raise ValidationError(errors.get_error(errors.EMAIL_EXSITS))
+        raise ValidationError(errors.get_error(errors.INVALID_ROLE))
+    # Check role if it not administrator or owner
+    if request.user.role.id not in [1,2]: # 
+        raise ValidationError(errors.get_error(errors.ONLY_OWNER_ADMIN_CREATE_USER))
+    # Check if you are admin or owner
+    if request.user.role.id == 1:
+        pass
+    elif request.user.role.role_creater < 0: # (owner_premium or owner_standard)
+        if role <= request.user.role.id:
+            raise ValidationError(errors.get_error(errors.CREATE_USER_WITH_ROLE_BELOW_YOU))
+        if role_obj.role_creater > 0:    
+            try:
+                creater = User.objects.get(pk = role_obj.role_creater)
+            except:
+                raise ValidationError(errors.get_error(errors.NOT_FOUND_USER))
+            if creater != request.user:
+                raise ValidationError(errors.get_error(errors.CREATE_USER_WITH_ROLE_BELOW_YOU))
     # Check password and confirm 
     if data["password"] != data["password_confirm"]:
         raise ValidationError(errors.get_error(errors.PASSWORD_CONFIRM))
@@ -92,18 +88,6 @@ def register(request):
     user = get_user_model().objects.create_user(**serializer.validated_data)
     user.set_password(data["password"])
     user.profile_code = base_views.base64_encoding(user.email)
-    # Creater ID
-    user.employer = creater.id
-    # Supervisor of
-    if creater.role.id < 5 and role == 5:
-        if data.get('supervisor_of', None) == None:
-            raise ValidationError(errors.get_error(errors.HAVE_STORAGE_ID_SUPERVISOR_OF))
-        else:
-            user.supervisor_of = data["supervisor_of"]
-    # Create permissions for new user
-    permissions = user.role.role_permissions.all()
-    for permission in permissions:
-        UserPermission.objects.create(person=user, permission=permission)
     user.save()
     return Response(status=status.HTTP_201_CREATED)
 

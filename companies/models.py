@@ -11,6 +11,6 @@ class Company(models.Model):
     company_name = models.CharField(max_length=250)
     company_street = models.CharField(max_length=250)
     company_district = models.ForeignKey(District, on_delete=models.CASCADE, related_name="district_companies")
-    company_owner = models.ForeignKey(User, on_delete=models.CASCADE, related_name="user_companies")
+    company_owner = models.OneToOneField(User, on_delete=models.CASCADE, primary_key=False, related_name="owner_company")
     company_created = models.DateTimeField(auto_now_add=True)
     company_updated = models.DateTimeField(auto_now=True)
