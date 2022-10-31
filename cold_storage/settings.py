@@ -55,6 +55,7 @@ INSTALLED_APPS = [
     'pallets',
     'roles',
     'permissions',
+    'blocks',
     'entities',
     'branch_accesses',
     'storage_accesses',

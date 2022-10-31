@@ -39,4 +39,5 @@ urlpatterns = [
     path('administrator/roles/', include('roles.administrator.urls')),
     path('administrator/entities/', include('entities.administrator.urls')),
     path('administrator/permissions/', include('permissions.administrator.urls')),
+    path('administrator/block-permissions/', include('blocks.administrator.urls'))
 ]

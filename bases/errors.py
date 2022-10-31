@@ -52,3 +52,4 @@ ONLY_OWNER_ADMIN_CREATE_USER = "You can't not create user because you are not ad
 CREATE_USER_WITH_ROLE_BELOW_YOU = "You just create user with all role below you or created by you!"
 DO_NOT_PERMISSION = "You don't have permissions to do this!"
 ARE_NOT_OWNER = "You are not owner of this!"
+NOT_FOUND_PERMISSION = "Can't find any permissions like that!"

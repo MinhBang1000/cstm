@@ -29,7 +29,6 @@ class MyTokenObtainPairView(TokenObtainPairView):
     serializer_class = MyTokenObtainPairSerializer
 
 @api_view(["POST"])
-@permission_classes([])
 def create_admin(request):
     data = request.data
     # Check email exists
@@ -88,6 +87,7 @@ def register(request):
     user = get_user_model().objects.create_user(**serializer.validated_data)
     user.set_password(data["password"])
     user.profile_code = base_views.base64_encoding(user.email)
+    user.creater = request.user.id
     user.save()
     return Response(status=status.HTTP_201_CREATED)
 

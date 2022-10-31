@@ -5,6 +5,7 @@ from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 
 from users.models import ResetCode
 from roles.administrator.serializers import RoleSerializer
+from blocks.administrator.serializers import BlockSerializer
 
 class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
 
@@ -18,10 +19,11 @@ class UserSerializer(serializers.ModelSerializer):
 
 class ProfileSerializer(serializers.ModelSerializer):
     role = RoleSerializer()
+    block_permissions = BlockSerializer(many=True, read_only=True, source="user_blocks")
     class Meta:
         model = get_user_model()
-        fields = [ 'id','email', 'first_name', 'last_name', 'dob', 'phone_no','role','profile_code']
-        read_only_fields = [ 'id', 'email', 'first_name', 'last_name', 'dob', 'phone_no','role','profile_code','employer' ]
+        fields = [ 'id','email', 'first_name', 'last_name', 'dob', 'phone_no','role','profile_code','creater','block_permissions']
+        read_only_fields = [ 'id', 'email', 'first_name', 'last_name', 'dob', 'phone_no','role','profile_code','creater']
 
 class RegisterSerializer(serializers.ModelSerializer):
 
@@ -61,5 +63,5 @@ class EmployeeSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = get_user_model()
-        fields = [ "id","email","first_name","last_name","role" ]
-        read_only_fields = [ "id","email","first_name","last_name","role" ]
+        fields = [ "id","email","first_name","last_name","role","creater" ]
+        read_only_fields = [ "id","email","first_name","last_name","role","creater" ]
