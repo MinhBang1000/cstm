@@ -22,6 +22,13 @@ def block_permission(request):
     data = request.data 
     permission_id = data.get("block_permission",None)
     user_id = data.get("block_user", None)
+    # Check have exists 
+    try:
+        block = Block.objects.filter(block_user = user_id, block_permission = permission_id)
+    except:
+        pass 
+    if len(block) != 0:
+        raise ValidationError(errors.get_error(errors.WAS_RECEIVED))
     try:
         user_obj = User.objects.get(pk = user_id)
     except:
@@ -30,6 +37,10 @@ def block_permission(request):
         permission_obj = Permission.objects.get(pk = permission_id)
     except:
         raise ValidationError(errors.get_error(errors.NOT_FOUND_PERMISSION))
+    # List of permissions which is showing in user_obj permissions field
+    lst_permissions = [ permission.id for permission in user_obj.role.role_permissions.all() ]
+    if permission_id not in lst_permissions:
+        raise ValidationError(errors.get_error(errors.CAN_NOT_BLOCK_UNKNOW_PERMISSION))
     # Check is owner of user
     blocker = request.user 
     if blocker.role.id != 1 and blocker.role.role_creater != -1:
@@ -62,6 +73,8 @@ def unblock_permission(request):
     if user_obj.creater != blocker.id:
         raise ValidationError(errors.get_error(errors.ARE_NOT_OWNER))
     block = Block.objects.filter(block_permission = permission_id, block_user = user_id).first()
+    if block == None:
+        raise ValidationError(errors.get_error(errors.NOT_FOUND_BLOCK))
     block.delete()
     return Response(status=status.HTTP_200_OK)
 

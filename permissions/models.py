@@ -7,3 +7,6 @@ class Permission(models.Model):
 
     def __str__(self) -> str:
         return self.permission_name + "_" + self.permission_entity.entity_name
+    
+    def get_str(self)->str:
+        return self.permission_name + "_" + self.permission_entity.entity_name

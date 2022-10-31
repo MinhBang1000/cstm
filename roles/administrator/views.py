@@ -49,7 +49,10 @@ class RoleViewSet(BaseViewSet):
     def perform_update(self, serializer):
         if self.request.user != None:
             if self.request.user.role.id != 1 and self.request.user.role.role_creater == -1: # Là owner mới có quyền tạo role 
-                if self.request.user.role.id != Role.objects.get(pk = self.kwargs["pk"]).role_creater:
+                role_obj = Role.objects.get(pk = self.kwargs["pk"])
+                if role_obj.role_creater == 0:
+                    raise ValidationError(errors.get_error(errors.ONLY_ADMIN))
+                if self.request.user.role.id != role_obj.role_creater:
                     raise ValidationError(errors.get_error(errors.ARE_NOT_OWNER))
                 owner_permissions = self.request.user.role.role_permissions.all()
                 owner_permission_ids = [ per.id for per in owner_permissions ] 

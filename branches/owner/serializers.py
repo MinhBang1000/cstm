@@ -23,7 +23,6 @@ class BranchSerializer(serializers.ModelSerializer):
     )
     branch_district = district_serializer.DistrictSerializer(read_only = True)
     branch_company = company_serializer.CompanySerializer(read_only = True)
-    branch_manager = employee_serializers.EmployeeSerializer(read_only = True)
     class Meta:
         model = Branch
-        fields = [ "id","branch_name","branch_street","branch_district","branch_district_id","branch_company","branch_company_id","branch_manager" ]
+        fields = [ "id","branch_name","branch_street","branch_district","branch_district_id","branch_company","branch_company_id" ]

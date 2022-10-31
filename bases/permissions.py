@@ -8,10 +8,6 @@ class IsOwnerManager(permissions.IsAuthenticated):
     def has_permission(self, request, view):
         return super().has_permission(request, view) and request.user.role in ["Onwer", "Manager","Administrator"]
 
-class IsOwner(permissions.IsAuthenticated):
-    def has_permission(self, request, view):
-        return super().has_permission(request, view) and request.user.role in ["Owner","Administrator"]
-
 class IsOwnerAdmin(permissions.IsAdminUser):
     def has_permission(self, request, view):
         return super().has_permission(request, view) and request.user.role in ["Owner","Administrator"]
@@ -31,3 +27,7 @@ class IsSupervisor(permissions.IsAuthenticated):
 class IsOwnerSupervisor(permissions.IsAuthenticated):
     def has_permission(self, request, view):
         return super().has_permission(request, view) and request.user.role in ["Owner","Supervisor","Administrator"]
+
+class IsOwner(permissions.IsAuthenticated):
+    def has_permission(self, request, view):
+        return super().has_permission(request, view) and request.user.role.role_creater == -1
