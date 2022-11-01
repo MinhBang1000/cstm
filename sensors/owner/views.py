@@ -3,7 +3,7 @@ import requests
 
 # Rest framework
 from rest_framework.serializers import ValidationError
-from rest_framework.decorators import api_view, permission_classes
+from rest_framework import permissions
 
 # Customize
 from bases.views import BaseViewSet
@@ -16,17 +16,39 @@ from bases.solving_code.Space import Space as SpaceClass
 from bases.solving_code.Storage import Storage as StorageClass 
 from bases.solving_code.Sensor import Sensor as SensorClass
 from bases.solving_code.SpaceDividing import SpaceDividing as SpaceDividingClass
+from branch_accesses.models import BranchAccess
+from storage_accesses.models import StorageAccess
 
 
 class SensorViewSet(BaseViewSet):
     serializer_class = sensor_serializers.SensorSerializer
-    # permission_classes = [base_permissions.IsOwnerAdmin]
+    permission_classes = [ permissions.IsAuthenticated ]
     filterset_fields = [ "sensor_x", "sensor_y", "sensor_z", "sensor_storage__storage_name", "sensor_storage__storage_code", "sensor_storage__id" ]
-    
-    def get_queryset(self):
-        # return Sensor.objects.filter(sensor_storage__storage_manager = self.request.user)
-        return Sensor.objects.all()
+    view_name = "sensor"
 
+    def get_queryset(self):
+        if self.is_owner() == True:
+            return Sensor.objects.filter( sensor_storage__storage_branch__branch_company__company_owner = self.request.user )
+        access = None
+        try:
+            access = StorageAccess.objects.get( access_employee = self.request.user )
+        except:
+            pass
+        if access == None:
+            try:
+                access = BranchAccess.objects.get( access_employee = self.request.user )
+            except:
+                raise ValidationError(errors.get_error(errors.YOU_NOT_IN_BRANCH_OR_STORAGE))
+            return Sensor.objects.filter( sensor_storage__storage_branch = access.access_branch )
+        return Sensor.objects.filter( sensor_storage = access.access_storage )
+
+    def check_permissions(self, request):
+        # To check user permissions - do not review block permissions yet
+        self_check = self.is_permission(self.view_name)
+        if self_check == False:
+            raise ValidationError(errors.get_error(errors.DO_NOT_PERMISSION))        
+        return super().check_permissions(request)
+    
     def has_enough_primary_sensor(self, storage):
         sensors = Sensor.objects.filter(sensor_storage = storage.id)
         # Check not found storage in previous function
@@ -46,10 +68,6 @@ class SensorViewSet(BaseViewSet):
             pass
         else:
             print(r_status_code)
-    
-    def list(self, request, *args, **kwargs):
-        # self.call_external_api()
-        return super().list(request, *args, **kwargs)
 
     def caculating_total_spaces(self, storage):
         if self.has_enough_primary_sensor(storage) == True:
@@ -86,8 +104,21 @@ class SensorViewSet(BaseViewSet):
             storage = Storage.objects.get(pk = self.request.data["sensor_storage_id"])
         except:
             raise ValidationError(errors.get_error(errors.NOT_FOUND_STORAGE))
-        if storage.storage_manager != self.request.user:
-            raise ValidationError(errors.get_error(errors.NOT_FOUND_STORAGE))
+        # Check owner or employee
+        access = None
+        if self.is_owner() == True:
+            if storage.storage_branch.branch_company.company_owner != self.request.user:
+                raise ValidationError(errors.get_error(errors.ARE_NOT_OWNER))
+        else:
+            try:
+                access = StorageAccess.objects.filter( access_employee = self.request.user, access_storage = storage ).first()
+            except:
+                pass
+            if access == None:
+                try:
+                    access = BranchAccess.objects.filter( access_employee = self.request.user, access_branch = storage.storage_branch ).first()
+                except:
+                    raise ValidationError(errors.get_error(errors.YOU_NOT_IN_BRANCH_OR_STORAGE))
         # Create a new instance for sensor
         super().perform_create(serializer)
         # Caculating total space when we have enough primary sensors
@@ -100,6 +131,22 @@ class SensorViewSet(BaseViewSet):
             sensor = Sensor.objects.get(pk = self.kwargs.get("pk", False))
         except:
             raise ValidationError(errors.get_error(errors.NOT_FOUND_SENSOR)) 
+        storage = sensor.sensor_storage
+        # Check owner or employee
+        access = None
+        if self.is_owner() == True:
+            if storage.storage_branch.branch_company.company_owner != self.request.user:
+                raise ValidationError(errors.get_error(errors.ARE_NOT_OWNER))
+        else:
+            try:
+                access = StorageAccess.objects.filter( access_employee = self.request.user, access_storage = storage ).first()
+            except:
+                pass
+            if access == None:
+                try:
+                    access = BranchAccess.objects.filter( access_employee = self.request.user, access_branch = storage.storage_branch ).first()
+                except:
+                    raise ValidationError(errors.get_error(errors.YOU_NOT_IN_BRANCH_OR_STORAGE))
         x = self.request.data.get("sensor_x", None) if self.request.data.get("sensor_x", None) != None else sensor.sensor_x 
         y = self.request.data.get("sensor_y", None) if self.request.data.get("sensor_y", None) != None else sensor.sensor_y
         z = self.request.data.get("sensor_z", None) if self.request.data.get("sensor_z", None) != None else sensor.sensor_z

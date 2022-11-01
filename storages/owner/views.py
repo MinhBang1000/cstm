@@ -5,6 +5,7 @@ from rest_framework import permissions
 # Customize
 from bases.views import BaseViewSet, base64_encoding
 from bases import errors, permissions as base_permissions
+from branch_accesses.models import BranchAccess
 from storages.owner import serializers as storage_serializer
 from storages.models import Storage
 from storage_accesses.models import StorageAccess
@@ -33,10 +34,17 @@ class StorageViewSet(BaseViewSet):
         if self.is_owner() == True:
             return Storage.objects.filter(storage_branch__branch_company__company_owner = self.request.user)
         # One to One is a relationship of user and storage
+        access = None
         try:
             access = StorageAccess.objects.get( access_employee = self.request.user )
         except:
-            raise ValidationError(errors.get_error(errors.YOU_NOT_IN_STORAGE))
+            pass
+        if access == None:
+            try:
+                access = BranchAccess.objects.get( access_employee = self.request.user )
+            except:
+                raise ValidationError(errors.get_error(errors.YOU_NOT_IN_BRANCH_OR_STORAGE))
+            return Storage.objects.filter( storage_branch = access.access_branch )
         # Return type is array of querydict
         return Storage.objects.filter(pk = access.access_storage.id)
 

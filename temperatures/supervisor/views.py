@@ -13,8 +13,8 @@ from sensors.models import Sensor
 from storages.models import Storage
 from bases import errors, permissions as base_permissions
 from bases.solving_code.SpaceSaver import SpaceSaver
-from bases.solving_code.Space import Space 
-from bases.solving_code.SpaceDividing import SpaceDividing
+from branch_accesses.models import BranchAccess
+from storage_accesses.models import StorageAccess
 
 # Show running time 
 import time
@@ -110,14 +110,27 @@ def get_temperatures(request, storage_id):
         storage = Storage.objects.get(pk = storage_id)
     except:
         raise ValidationError(errors.get_error(errors.NOT_FOUND_STORAGE))        
-    owner = False
-    if storage.storage_branch.branch_company.company_owner == user:
-        # Is Owner 
-        owner = True
+    # Check owner or employee of storage or superior level
+    access = None 
+    if user.role.role_creater == -1:
+        pass 
     else:
-        # Is employee 
-        pass
-    
+        try:
+            access = StorageAccess.objects.filter( access_employee = user, access_storage = storage ).first()
+        except:
+            pass 
+        if access == None:
+            try:
+                access = BranchAccess.objects.filter( access_employee = user, access_branch = storage.storage_branch ).first()
+            except:
+                raise ValidationError(errors.get_error(errors.YOU_NOT_IN_BRANCH_OR_STORAGE))
+    # Check permissions of user --> read_storage
+    lst_block_permissions = [ block.block_permission.id for block in user.user_blocks.all() ] 
+    accept_permission = user.role.role_permissions.filter(permission_name = "read", permission_entity__entity_name = "storage").first()
+    if accept_permission == None:
+        raise ValidationError(errors.get_error(errors.DO_NOT_PERMISSION))
+    if accept_permission.id in lst_block_permissions:
+        raise ValidationError(errors.get_error(errors.DO_NOT_PERMISSION))
     # Read for total space which had saved in server
     reader = SpaceSaver()
     total_spaces = reader.local_read(storage.id)

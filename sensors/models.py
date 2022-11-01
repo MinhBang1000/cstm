@@ -11,6 +11,6 @@ class Sensor(models.Model):
     sensor_z = models.IntegerField()
     sensor_temperature = models.FloatField()
     sensor_category = models.CharField(max_length = 3, default = "001") 
-    # 001 is code which is identify for sensor temperatures
+    # 001 is code which is identify for sensor of temperatures
     sensor_storage = models.ForeignKey(Storage, on_delete=models.CASCADE, related_name="sensors")
 
