@@ -15,3 +15,6 @@ class Branch(models.Model):
     branch_company = models.ForeignKey(Company, on_delete=models.CASCADE, related_name="company_branches")
     branch_created = models.DateTimeField(auto_now_add=True)
     branch_updated = models.DateTimeField(auto_now=True)
+
+    def __str__(self) -> str:
+        return self.branch_name +"_"+ self.branch_company.company_name

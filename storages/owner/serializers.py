@@ -29,7 +29,6 @@ class StorageSerializer(serializers.ModelSerializer):
         write_only = True,
         source = "storage_district"
     )
-    storage_manager = employee_serializers.EmployeeSerializer(read_only = True)
 
     class Meta:
         model = Storage 
@@ -45,6 +44,5 @@ class StorageSerializer(serializers.ModelSerializer):
             "storage_branch_id",
             "storage_district",
             "storage_district_id",
-            "storage_manager"
         ]
         ready_only_fields = ["storage_code"]
