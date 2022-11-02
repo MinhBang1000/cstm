@@ -11,7 +11,7 @@ from roles.administrator import serializers as role_serializers
 class RoleViewSet(BaseViewSet):
     serializer_class = role_serializers.RoleSerializer
     queryset = Role.objects.all()
-    permission_classes = [ permissions.IsAuthenticated ]
+    # permission_classes = [ permissions.IsAuthenticated ]
 
     def list(self, request, *args, **kwargs):
         user = self.request.user 
