@@ -118,6 +118,8 @@ class SensorViewSet(BaseViewSet):
                 try:
                     access = BranchAccess.objects.filter( access_employee = self.request.user, access_branch = storage.storage_branch ).first()
                 except:
+                    pass
+                if access == None:
                     raise ValidationError(errors.get_error(errors.YOU_NOT_IN_BRANCH_OR_STORAGE))
         # Create a new instance for sensor
         super().perform_create(serializer)
@@ -146,6 +148,8 @@ class SensorViewSet(BaseViewSet):
                 try:
                     access = BranchAccess.objects.filter( access_employee = self.request.user, access_branch = storage.storage_branch ).first()
                 except:
+                    pass 
+                if access == None:
                     raise ValidationError(errors.get_error(errors.YOU_NOT_IN_BRANCH_OR_STORAGE))
         x = self.request.data.get("sensor_x", None) if self.request.data.get("sensor_x", None) != None else sensor.sensor_x 
         y = self.request.data.get("sensor_y", None) if self.request.data.get("sensor_y", None) != None else sensor.sensor_y

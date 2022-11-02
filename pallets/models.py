@@ -1,3 +1,4 @@
+from email.policy import default
 from django.db import models
 from storages.models import Storage
 
@@ -10,4 +11,5 @@ class Pallet(models.Model):
     pallet_x = models.IntegerField()
     pallet_y = models.IntegerField()
     pallet_z = models.IntegerField()
+    pallet_color = models.CharField(max_length = 250, default = "NONE")
     pallet_storage = models.ForeignKey(Storage, on_delete = models.CASCADE, related_name = "storage_pallets")

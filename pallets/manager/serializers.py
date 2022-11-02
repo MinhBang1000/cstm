@@ -15,4 +15,4 @@ class PalletSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Pallet 
-        fields = [ "id","pallet_x","pallet_y","pallet_y","pallet_length","pallet_width","pallet_height","pallet_drawers","pallet_storage_id" ]
+        fields = [ "id","pallet_x","pallet_y","pallet_z","pallet_length","pallet_width","pallet_height","pallet_drawers","pallet_color","pallet_storage_id" ]

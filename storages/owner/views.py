@@ -56,6 +56,17 @@ class StorageViewSet(BaseViewSet):
         return super().check_permissions(request)
 
     def perform_create(self, serializer):
+        # Check owner or employee 
+        if self.is_owner() == True:
+            pass
+        else:
+            access = None
+            try:
+                access = BranchAccess.objects.filter( access_employee = self.request.user ).first()
+            except:
+                pass 
+            if access == None:
+                raise ValidationError(errors.get_error(errors.YOU_NOT_IN_BRANCH))
         # To create storage code for storage
         user = self.request.user
         storage = serializer.save(storage_code = 'default-code-will-be-replaced!')
@@ -63,3 +74,28 @@ class StorageViewSet(BaseViewSet):
         storage_code = base64_encoding(storage_code)
         storage.storage_code = storage_code
         storage.save()
+    
+    def perform_update(self, serializer):
+        # Check owner or employee 
+        try:
+            storage = Storage.objects.get( pk = self.kwargs["pk"] )
+        except:
+            raise ValidationError(errors.get_error(errors.NOT_FOUND_STORAGE))
+        branch = storage.storage_branch 
+        if self.is_owner() == True:
+            if self.request.user != branch.branch_company.company_owner:
+                raise ValidationError(errors.get_error(errors.ARE_NOT_OWNER))
+        else:
+            access = None
+            try:
+                access = StorageAccess.objects.filter( access_employee = self.request.user, access_storage = storage ).first()
+            except:
+                pass 
+            if access == None:
+                try:
+                    access = BranchAccess.objects.filter( access_employee = self.request.user, access_branch = branch ).first()
+                except:
+                    pass 
+                if access == None:
+                    raise ValidationError(errors.get_error(errors.YOU_NOT_IN_BRANCH_OR_STORAGE))
+        return super().perform_update(serializer)

@@ -15,4 +15,5 @@ class SensorSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Sensor
-        fields = [ "id", "sensor_x", "sensor_y", "sensor_z", "sensor_temperature", "sensor_storage_id" ]
+        fields = [ "id", "sensor_x", "sensor_y", "sensor_z", "sensor_temperature", "sensor_storage_id","sensor_category" ]
+        read_only_fields = [ "sensor_category" ]

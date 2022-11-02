@@ -41,6 +41,31 @@ class BranchViewSet(BaseViewSet):
         return super().check_permissions(request)
     
     def update(self, request, *args, **kwargs):
+        # Check owner or employee 
         if request.data.get("branch_company", False) != False:
             raise ValidationError(errors.get_error(errors.BRANCH_CHANGE_COMPANY))
         return super().update(request, *args, **kwargs)
+
+    def perform_create(self, serializer):
+        if self.is_owner() == False:
+            raise ValidationError(errors.get_error(errors.ARE_NOT_OWNER))
+        return super().perform_create(serializer)
+
+    def perform_update(self, serializer):
+        branch_id = self.kwargs["pk"]
+        try:
+            branch =  Branch.objects.get( pk = branch_id )
+        except:
+            raise ValidationError(errors.get_error(errors.NOT_FOUND_BRANCH))
+        if self.is_owner() == True:
+            if self.request.user != branch.branch_company.company_owner:
+                raise ValidationError(errors.get_error(errors.ARE_NOT_OWNER))
+        else:
+            access = None
+            try:
+                access = BranchAccess.objects.filter( access_employee = self.request.user ,access_branch = branch ).first()
+            except:
+                pass 
+            if access == None:
+                raise ValidationError(errors.get_error(errors.YOU_NOT_IN_BRANCH))
+        return super().perform_update(serializer)

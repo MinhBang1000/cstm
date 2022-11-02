@@ -218,13 +218,20 @@ def get_face_temperatures(request, storage_id):
         storage = Storage.objects.get(pk = storage_id)
     except:
         raise ValidationError(errors.get_error(errors.NOT_FOUND_STORAGE))        
-    owner = False
-    if storage.storage_branch.branch_company.company_owner == user:
-        # Is Owner 
-        owner = True
+    # Check owner or employee of storage or superior level
+    access = None 
+    if user.role.role_creater == -1:
+        pass 
     else:
-        # Is employee 
-        pass
+        try:
+            access = StorageAccess.objects.filter( access_employee = user, access_storage = storage ).first()
+        except:
+            pass 
+        if access == None:
+            try:
+                access = BranchAccess.objects.filter( access_employee = user, access_branch = storage.storage_branch ).first()
+            except:
+                raise ValidationError(errors.get_error(errors.YOU_NOT_IN_BRANCH_OR_STORAGE))
     
     # Read for total space which had saved in server
     reader = SpaceSaver()
@@ -310,14 +317,20 @@ def get_list_temperatures(request, storage_id):
         storage = Storage.objects.get(pk = storage_id)
     except:
         raise ValidationError(errors.get_error(errors.NOT_FOUND_STORAGE))        
-    owner = False
-    if storage.storage_branch.branch_company.company_owner == user:
-        # Is Owner 
-        owner = True
+    # Check owner or employee of storage or superior level
+    access = None 
+    if user.role.role_creater == -1:
+        pass 
     else:
-        # Is employee 
-        pass
-    
+        try:
+            access = StorageAccess.objects.filter( access_employee = user, access_storage = storage ).first()
+        except:
+            pass 
+        if access == None:
+            try:
+                access = BranchAccess.objects.filter( access_employee = user, access_branch = storage.storage_branch ).first()
+            except:
+                raise ValidationError(errors.get_error(errors.YOU_NOT_IN_BRANCH_OR_STORAGE))
     # Read for total space which had saved in server
     reader = SpaceSaver()
     total_spaces = reader.local_read(storage.id)
