@@ -52,6 +52,7 @@ INSTALLED_APPS = [
     'branches',
     'storages',
     'sensors',
+    'stations',
     'pallets',
     'roles',
     'permissions',

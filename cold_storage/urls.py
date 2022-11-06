@@ -22,6 +22,7 @@ urlpatterns = [
     path('users/', include('users.employee.urls')),
     path('api/branch_accesses/', include('branch_accesses.api.urls')),
     path('api/storage_accesses/', include('storage_accesses.api.urls')),
+    path('api/stations/', include('stations.api.urls')),
 
     # Supervisor
     path('supervisor/storage_temperatures/', include('temperatures.supervisor.urls')),
@@ -41,5 +42,5 @@ urlpatterns = [
     path('administrator/roles/', include('roles.administrator.urls')),
     path('administrator/entities/', include('entities.administrator.urls')),
     path('administrator/permissions/', include('permissions.administrator.urls')),
-    path('administrator/block-permissions/', include('blocks.administrator.urls'))
+    path('administrator/block-permissions/', include('blocks.administrator.urls')),
 ]

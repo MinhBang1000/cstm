@@ -18,7 +18,7 @@ from bases.solving_code.Sensor import Sensor as SensorClass
 from bases.solving_code.SpaceDividing import SpaceDividing as SpaceDividingClass
 from branch_accesses.models import BranchAccess
 from storage_accesses.models import StorageAccess
-
+from stations.models import Station
 
 class SensorViewSet(BaseViewSet):
     serializer_class = sensor_serializers.SensorSerializer
@@ -68,6 +68,30 @@ class SensorViewSet(BaseViewSet):
             pass
         else:
             print(r_status_code)
+    
+    # requests.post('https://httpbin.org/post', data={'key':'value'})
+    def create_sensor_iot_lab(self, username, password, data):
+        url = 'https://fake-sensors.herokuapp.com/sensors/'
+        r = requests.post(url, data, auth=(username, password))
+        if r.status_code != 201:
+            raise ValidationError(errors.get_error(errors.CAN_NOT_PERFORM))
+        return r.json()
+
+    # requests.delete('https://httpbin.org/delete')
+    def delete_sensor_iot_lab(self, id, username, password):
+        url = 'https://fake-sensors.herokuapp.com/sensors/'+str(id)+"/"
+        r = requests.delete(url, auth=(username, password))
+        print(r.status_code)
+        if r.status_code != 204:
+            raise ValidationError(errors.get_error(errors.CAN_NOT_PERFORM))
+
+    # requests.put('https://httpbin.org/put', data={'key':'value'})
+    def update_sensor_iot_lab(self, id, username, password, data):
+        url = 'https://fake-sensors.herokuapp.com/sensors/'+str(id)+"/"
+        r = requests.put(url, data, auth=(username, password))
+        if r.status_code != 200:
+            raise ValidationError(errors.get_error(errors.CAN_NOT_PERFORM))
+        return r.json()
 
     def caculating_total_spaces(self, storage):
         if self.has_enough_primary_sensor(storage) == True:
@@ -122,7 +146,24 @@ class SensorViewSet(BaseViewSet):
                 if access == None:
                     raise ValidationError(errors.get_error(errors.YOU_NOT_IN_BRANCH_OR_STORAGE))
         # Create a new instance for sensor
-        super().perform_create(serializer)
+        instance = serializer.save()
+        # Create a new instance for sensor in IOT LAB API
+        try:
+            station = Station.objects.filter( station_storage = storage ).first()
+        except:
+            pass 
+        if station == None:
+            raise ValidationError(errors.get_error(errors.AUTHENICATION_IN_IOT))
+        iot_data = {
+            "x": instance.sensor_x,
+            "y": instance.sensor_y,
+            "z": instance.sensor_z,
+            "temperature": instance.sensor_temperature,
+            "identify": instance.id
+        }
+        response_json = self.create_sensor_iot_lab(station.station_username, station.station_password, iot_data)
+        instance.sensor_code = response_json["id"]
+        instance.save()
         # Caculating total space when we have enough primary sensors
         self.caculating_total_spaces(storage)
 
@@ -161,6 +202,57 @@ class SensorViewSet(BaseViewSet):
         if flag == True and len(sensors) != 0:
             raise ValidationError(errors.get_error(errors.SENSOR_EXISTS))
         # Update the sensor
-        super().perform_update(serializer)
+        instance = serializer.save()
+        # Create a new instance for sensor in IOT LAB API
+        try:
+            station = Station.objects.filter( station_storage = storage ).first()
+        except:
+            pass 
+        if station == None:
+            raise ValidationError(errors.get_error(errors.AUTHENICATION_IN_IOT))
+        iot_data = {
+            "x": instance.sensor_x,
+            "y": instance.sensor_y,
+            "z": instance.sensor_z,
+            "temperature": instance.sensor_temperature,
+            "identify": instance.id
+        }
+        response_json = self.update_sensor_iot_lab(instance.sensor_code, station.station_username, station.station_password, iot_data)
         # Caculating total spaces after we have had enough primary sensors
         self.caculating_total_spaces(sensor.sensor_storage)
+
+    def perform_destroy(self, instance):
+        try:
+            sensor = Sensor.objects.get(pk = self.kwargs.get("pk", False))
+        except:
+            raise ValidationError(errors.get_error(errors.NOT_FOUND_SENSOR)) 
+        storage = sensor.sensor_storage
+        # Check owner or employee
+        access = None
+        if self.is_owner() == True:
+            if storage.storage_branch.branch_company.company_owner != self.request.user:
+                raise ValidationError(errors.get_error(errors.ARE_NOT_OWNER))
+        else:
+            try:
+                access = StorageAccess.objects.filter( access_employee = self.request.user, access_storage = storage ).first()
+            except:
+                pass
+            if access == None:
+                try:
+                    access = BranchAccess.objects.filter( access_employee = self.request.user, access_branch = storage.storage_branch ).first()
+                except:
+                    pass 
+                if access == None:
+                    raise ValidationError(errors.get_error(errors.YOU_NOT_IN_BRANCH_OR_STORAGE))
+        # Delete a instance for sensor in IOT LAB API
+        try:
+            station = Station.objects.filter( station_storage = storage ).first()
+        except:
+            pass 
+        if station == None:
+            raise ValidationError(errors.get_error(errors.AUTHENICATION_IN_IOT))
+        self.delete_sensor_iot_lab(sensor.sensor_code, station.station_username, station.station_password)
+        # To delete
+        super().perform_destroy(instance)
+        # Caculating total spaces after we have had enough primary sensors
+        self.caculating_total_spaces(storage)
