@@ -17,6 +17,7 @@ from branch_accesses.models import BranchAccess
 from storage_accesses.models import StorageAccess
 from stations.models import Station
 from bases.solving_code.Thread import SensorThread
+from bases.solving_code import StartThread
 
 # Show running time 
 import time
@@ -26,49 +27,21 @@ import copy
 from sklearn.metrics import mean_squared_error
 
 @api_view(["GET"])
-@permission_classes([permissions.IsAuthenticated])
-def start_real_time_temperatures(request, storage_id):
-    # Get Storage
-    user = request.user
+@permission_classes([permissions.IsAdminUser])
+def stop_real_time_temperatures(request):
+    StartThread.stop_update()
+    return Response()
+
+@api_view(["GET"])
+@permission_classes([permissions.IsAdminUser])
+def start_real_time_temperatures(request):
+    # Start Thread in here
+    StartThread.start_update()
     try:
-        storage = Storage.objects.get(pk = storage_id)
-    except:
-        raise ValidationError(errors.get_error(errors.NOT_FOUND_STORAGE))        
-    # Check owner or employee of storage or superior level
-    access = None 
-    if user.role.role_creater == -1:
-        pass 
-    else:
-        try:
-            access = StorageAccess.objects.filter( access_employee = user, access_storage = storage ).first()
-        except:
-            pass 
-        if access == None:
-            try:
-                access = BranchAccess.objects.filter( access_employee = user, access_branch = storage.storage_branch ).first()
-            except:
-                raise ValidationError(errors.get_error(errors.YOU_NOT_IN_BRANCH_OR_STORAGE))
-    # Check permissions of user --> read_storage
-    lst_block_permissions = [ block.block_permission.id for block in user.user_blocks.all() ] 
-    accept_permission = user.role.role_permissions.filter(permission_name = "read", permission_entity__entity_name = "storage").first()
-    if accept_permission == None:
-        raise ValidationError(errors.get_error(errors.DO_NOT_PERMISSION))
-    if accept_permission.id in lst_block_permissions:
-        raise ValidationError(errors.get_error(errors.DO_NOT_PERMISSION))
-    # Check station 
-    try:
-        station = Station.objects.filter( station_storage = storage ).first()
-    except:
-        pass 
-    if station == None:
-        raise ValidationError(errors.get_error(errors.AUTHENICATION_IN_IOT))
-    # Call interval API for update temperature of sensors 
-    # 60s for each time, 5 times for each access
-    try:
-        t1 = SensorThread(5,30,station)
+        t1 = SensorThread(10)
         t1.start()
     except:
-        raise ValidationError(errors.get_error(errors.CAN_NOT_PERFORM))
+        print("error")
     return Response()
 
 @api_view(["GET"])

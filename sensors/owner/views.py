@@ -145,8 +145,6 @@ class SensorViewSet(BaseViewSet):
                     pass
                 if access == None:
                     raise ValidationError(errors.get_error(errors.YOU_NOT_IN_BRANCH_OR_STORAGE))
-        # Create a new instance for sensor
-        instance = serializer.save()
         # Create a new instance for sensor in IOT LAB API
         try:
             station = Station.objects.filter( station_storage = storage ).first()
@@ -154,6 +152,8 @@ class SensorViewSet(BaseViewSet):
             pass 
         if station == None:
             raise ValidationError(errors.get_error(errors.AUTHENICATION_IN_IOT))
+        # Create a new instance for sensor
+        instance = serializer.save()        
         iot_data = {
             "x": instance.sensor_x,
             "y": instance.sensor_y,
@@ -201,8 +201,6 @@ class SensorViewSet(BaseViewSet):
         sensors = Sensor.objects.filter(sensor_x = x, sensor_y = y, sensor_z = z, sensor_storage = sensor.sensor_storage.id)
         if flag == True and len(sensors) != 0:
             raise ValidationError(errors.get_error(errors.SENSOR_EXISTS))
-        # Update the sensor
-        instance = serializer.save()
         # Create a new instance for sensor in IOT LAB API
         try:
             station = Station.objects.filter( station_storage = storage ).first()
@@ -210,6 +208,8 @@ class SensorViewSet(BaseViewSet):
             pass 
         if station == None:
             raise ValidationError(errors.get_error(errors.AUTHENICATION_IN_IOT))
+        # Update the sensor
+        instance = serializer.save()
         iot_data = {
             "x": instance.sensor_x,
             "y": instance.sensor_y,
