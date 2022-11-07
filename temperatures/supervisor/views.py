@@ -38,7 +38,7 @@ def start_real_time_temperatures(request):
     # Start Thread in here
     StartThread.start_update()
     try:
-        t1 = SensorThread(10)
+        t1 = SensorThread(20)
         t1.start()
     except:
         print("error")

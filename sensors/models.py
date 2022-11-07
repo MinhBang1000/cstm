@@ -16,4 +16,4 @@ class Sensor(models.Model):
     sensor_storage = models.ForeignKey(Storage, on_delete=models.CASCADE, related_name="sensors")
 
     def __str__(self) -> str:
-        return str(self.id) + "_" + self.sensor_storage.storage_name
+        return str(self.id) + "_Kho lanh " + str(self.sensor_storage.id)
