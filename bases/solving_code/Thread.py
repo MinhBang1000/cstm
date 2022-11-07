@@ -7,7 +7,7 @@ import os
 
 # Customize
 from sensors.models import Sensor
-
+from stations.models import Station
 class SensorThread(Thread):
     def __init__(self, delay):
         super(SensorThread, self).__init__() 
