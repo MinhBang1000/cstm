@@ -10,11 +10,13 @@ from pallets.models import Pallet
 from branch_accesses.models import BranchAccess
 from storage_accesses.models import StorageAccess
 from storages.models import Storage
+from locations.models import Location
+from locations.api import serializers as location_serializers
 
 class PalletViewSet(BaseViewSet):
     serializer_class = pallet_serializers.PalletSerializer
     permission_classes = [ permissions.IsAuthenticated ]
-    filterset_fields = [ "id","pallet_x","pallet_y","pallet_y","pallet_length","pallet_width","pallet_height","pallet_color","pallet_drawers","pallet_storage__id" ]
+    filterset_fields = [ "id","pallet_length","pallet_width","pallet_height","pallet_color","pallet_drawers","pallet_storage__id" ]
     view_name = "pallet"
 
     def get_queryset(self):
@@ -65,7 +67,32 @@ class PalletViewSet(BaseViewSet):
                     pass 
                 if access == None:
                     raise ValidationError(errors.get_error(errors.YOU_NOT_IN_BRANCH_OR_STORAGE))
-        return super().perform_create(serializer)
+        # To create pallet instance
+        instance = serializer.save()
+        # To create for some locations of pallet
+        locations = self.request.data.get("pallet_locations", [])
+        for location in locations:
+            location_serializer = location_serializers.LocationSerializer(data=location)
+            location_serializer.is_valid(raise_exception=True)
+            location_serializer.save(location_pallet = instance)
+
+    def perform_update(self, serializer):
+        # To create pallet instance
+        instance = serializer.save()
+        # Delete all old location
+        try:
+            old_locations = Location.objects.filter( location_pallet = instance )
+        except:
+            pass 
+        for old_location in old_locations:
+            old_location.delete()
+        # To create for some locations of pallet
+        locations = self.request.data.get("pallet_locations", [])
+        for location in locations:
+            location_serializer = location_serializers.LocationSerializer(data=location)
+            location_serializer.is_valid(raise_exception=True)
+            location_serializer.save(location_pallet = instance)  
+        
 
     def update(self, request, *args, **kwargs):
         if request.data.get("pallet_storage_id", None) != None:
@@ -89,7 +116,7 @@ class PalletViewSet(BaseViewSet):
                 try:
                     access = BranchAccess.objects.filter(access_employee = self.request.user, access_branch = storage.storage_branch).first()
                 except:
-                    raise ValidationError(errors.get_error(errors.YOU_NOT_IN_BRANCH_OR_STORAGE))        
+                    raise ValidationError(errors.get_error(errors.YOU_NOT_IN_BRANCH_OR_STORAGE))      
         return super().update(request, *args, **kwargs)
 
     def destroy(self, request, *args, **kwargs):

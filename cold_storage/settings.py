@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'django_filters',
     'bases',
+    'locations',
     'users',
     'provinces',
     'districts',

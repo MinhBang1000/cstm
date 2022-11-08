@@ -53,10 +53,10 @@ class SensorThread(Thread):
             saver.local_write(saver_spaces, storage.id)
 
     def call_list_sensors(self):
-        url = 'https://fake-sensors.herokuapp.com/sensors/'
+        url = os.getenv('IOT_URL')
         # Admin of IOT LAB for update all sensors temperatures
         response = requests.get(url, auth=(os.getenv("IOT_USERNAME"), os.getenv("IOT_PASSWORD")))
-        print(response.json(), os.getenv("IOT_USERNAME"))
+        # print(response.json(), os.getenv("IOT_USERNAME"))
         data = response.json()
         # Find all stations we have
         try:
