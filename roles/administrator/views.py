@@ -12,6 +12,7 @@ class RoleViewSet(BaseViewSet):
     serializer_class = role_serializers.RoleSerializer
     queryset = Role.objects.all()
     permission_classes = [ permissions.IsAuthenticated ]
+    filterset_fields = ["role_creater"]
 
     def list(self, request, *args, **kwargs):
         user = self.request.user 

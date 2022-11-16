@@ -22,8 +22,10 @@ class StorageViewSet(BaseViewSet):
             "storage_height",
             "storage_code",
             "storage_street",
+            "storage_branch__id",
             "storage_branch__branch_name",
             "storage_branch__branch_company__company_name",
+            "storage_branch__branch_company__id",
             "storage_district__district_name",
             "storage_district__district_province__province_name",
             "storage_branch__branch_company__company_owner__email"

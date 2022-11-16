@@ -23,6 +23,7 @@ urlpatterns = [
     path('api/branch_accesses/', include('branch_accesses.api.urls')),
     path('api/storage_accesses/', include('storage_accesses.api.urls')),
     path('api/stations/', include('stations.api.urls')),
+    path('api/accounts/', include('accounts.api.urls')),
 
     # Supervisor
     path('supervisor/storage_temperatures/', include('temperatures.supervisor.urls')),
