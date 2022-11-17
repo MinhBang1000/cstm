@@ -79,7 +79,7 @@ def register(request):
                 raise ValidationError(errors.get_error(errors.NOT_FOUND_USER))
             if creater != request.user:
                 raise ValidationError(errors.get_error(errors.CREATE_USER_WITH_ROLE_BELOW_YOU))
-    # Check password and confirm 
+    # Check password and confirm follow authenication policy of django rest framework
     if data["password"] != data["password_confirm"]:
         raise ValidationError(errors.get_error(errors.PASSWORD_CONFIRM))
     serializer = RegisterSerializer(data=data)
