@@ -10,13 +10,13 @@ from rest_framework import permissions
 # Customize 
 from bases.views import BaseViewSet
 from bases import errors, permissions as base_permissions
-from users.employee.serializers import ProfileSerializer
+from accounts.api.serializers import ProfileSerializer
 
 
 class EmployeeViewSet(BaseViewSet):
     serializer_class = ProfileSerializer
     permission_classes = [permissions.IsAuthenticated, base_permissions.IsOwner]
-    filterset_fields = [ 'id','email', 'first_name', 'last_name', 'dob', 'phone_no','role__id','profile_code','creater']
+    filterset_fields = [ 'id','email', 'first_name', 'last_name', 'dob', 'phone_no','role__id','profile_code','creater','storage_employee_access__access_storage__id','branch_employee_access__access_branch__id']
 
     def get_queryset(self):
         return User.objects.filter( creater = self.request.user.id )
