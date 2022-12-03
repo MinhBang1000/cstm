@@ -31,3 +31,7 @@ class IsOwnerSupervisor(permissions.IsAuthenticated):
 class IsOwner(permissions.IsAuthenticated):
     def has_permission(self, request, view):
         return super().has_permission(request, view) and request.user.role.role_creater == -1
+
+class IsAdminOrOwner(permissions.IsAuthenticated):
+    def has_permission(self, request, view):
+        return super().has_permission(request, view) and request.user.role.role_creater in [-1, 0] 

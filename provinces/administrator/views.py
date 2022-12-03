@@ -14,5 +14,5 @@ class ProvinceViewSet(BaseViewSet):
     
     def get_permissions(self):
         if self.request.method in ["GET"]:
-            return [ base_permissions.IsOwnerAdmin() ]
+            return [ base_permissions.IsAdminOrOwner() ]
         return [ permissions.IsAdminUser() ]

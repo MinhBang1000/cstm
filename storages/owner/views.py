@@ -32,6 +32,7 @@ class StorageViewSet(BaseViewSet):
         ]
         
     # Needing filter for owner and employee only see storage
+    # Update and destroy were effect in this list
     def get_queryset(self):
         if self.is_owner() == True:
             return Storage.objects.filter(storage_branch__branch_company__company_owner = self.request.user)
@@ -76,6 +77,20 @@ class StorageViewSet(BaseViewSet):
         storage_code = base64_encoding(storage_code)
         storage.storage_code = storage_code
         storage.save()
+
+    def perform_destroy(self, instance):
+        # Check owner or employee 
+        if self.is_owner() == True:
+            pass
+        else:
+            access = None
+            try:
+                access = BranchAccess.objects.filter( access_employee = self.request.user ).first()
+            except:
+                pass 
+            if access == None:
+                raise ValidationError(errors.get_error(errors.YOU_NOT_IN_BRANCH))
+        return super().perform_destroy(instance)
     
     def perform_update(self, serializer):
         # Check owner or employee 

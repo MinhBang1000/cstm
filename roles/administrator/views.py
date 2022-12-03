@@ -4,6 +4,7 @@ from rest_framework import permissions
 
 # Customize 
 from bases.views import BaseViewSet
+from bases.permissions import IsAdminOrOwner
 from bases import errors
 from roles.models import Role 
 from roles.administrator import serializers as role_serializers
@@ -11,20 +12,30 @@ from roles.administrator import serializers as role_serializers
 class RoleViewSet(BaseViewSet):
     serializer_class = role_serializers.RoleSerializer
     queryset = Role.objects.all()
-    permission_classes = [ permissions.IsAuthenticated ]
+    permission_classes = [ IsAdminOrOwner ]
     filterset_fields = ["role_creater"]
 
-    def list(self, request, *args, **kwargs):
-        user = self.request.user 
-        if user.role.id not in [1,2]:
-            raise ValidationError(errors.get_error(errors.DO_NOT_PERMISSION))    
-        return super().list(request, *args, **kwargs)
+    def get_queryset(self):
+        value = self.request.query_params.get("role_level", None)
+        if value!=None:
+            value = int(value)
+            if self.is_owner() == True:
+                return Role.objects.filter(role_creater = self.request.user.id, role_level__gte = value).values() | Role.objects.filter(role_creater = 1, role_level__gte = value).values()
+        if self.is_owner() == True:
+            return Role.objects.filter(role_creater = self.request.user.id).values() | Role.objects.filter(role_creater = 1).values()
+        return super().get_queryset()
 
-    def destroy(self, request, *args, **kwargs):
-        user = self.request.user 
-        if user.role.id not in [1,2]:
-            raise ValidationError(errors.get_error(errors.DO_NOT_PERMISSION))   
-        return super().destroy(request, *args, **kwargs)
+    # def list(self, request, *args, **kwargs):
+    #     user = self.request.user 
+    #     if user.role.id not in [1,2]:
+    #         raise ValidationError(errors.get_error(errors.DO_NOT_PERMISSION))    
+    #     return super().list(request, *args, **kwargs)
+
+    # def destroy(self, request, *args, **kwargs):
+    #     user = self.request.user 
+    #     if user.role.id not in [1,2]:
+    #         raise ValidationError(errors.get_error(errors.DO_NOT_PERMISSION))   
+    #     return super().destroy(request, *args, **kwargs)
 
     def perform_create(self, serializer):
         role_creater = 0

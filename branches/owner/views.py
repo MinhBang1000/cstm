@@ -51,6 +51,11 @@ class BranchViewSet(BaseViewSet):
             raise ValidationError(errors.get_error(errors.ARE_NOT_OWNER))
         return super().perform_create(serializer)
 
+    def perform_destroy(self, instance):
+        if self.is_owner() == False:
+            raise ValidationError(errors.get_error(errors.ARE_NOT_OWNER))
+        return super().perform_destroy(instance)
+
     def perform_update(self, serializer):
         branch_id = self.kwargs["pk"]
         try:

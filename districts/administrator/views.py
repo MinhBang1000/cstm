@@ -9,7 +9,7 @@ from districts.models import District
 class DistrictViewSet(BaseViewSet):
     serializer_class = serializers.DistrictSerializer
     queryset = District.objects.all().select_related("district_province")
-    filterset_fields = [ "id","district_name","district_province__province_name" ]
+    filterset_fields = [ "id","district_name","district_province__province_name","district_province__id" ]
     
     def get_permissions(self):
         if self.request.method in ["GET"]:
