@@ -6,6 +6,7 @@ from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from users.models import ResetCode
 from roles.administrator.serializers import RoleSerializer
 from blocks.administrator.serializers import BlockSerializer
+from roles.models import Role
 
 class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
 
@@ -45,6 +46,18 @@ class RegisterSerializer(serializers.ModelSerializer):
     class Meta:
         model = get_user_model()
         fields = [ "email", "password", "dob", "phone_no", "first_name", "last_name", "role"]
+
+class UserRoleSerializer(serializers.ModelSerializer):
+
+    role_id = serializers.PrimaryKeyRelatedField(
+        queryset = Role.objects.all(),
+        write_only = True,
+        source = "role"
+    )
+    class Meta:
+        model = get_user_model()
+        fields = ["role","role_id"]
+        read_only_fields = ["role"]
 
 class ForgotPasswordSerializer(serializers.ModelSerializer):
     code = serializers.StringRelatedField()

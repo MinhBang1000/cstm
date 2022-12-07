@@ -20,10 +20,15 @@ class RoleViewSet(BaseViewSet):
         if value!=None:
             value = int(value)
             if self.is_owner() == True:
-                return Role.objects.filter(role_creater = self.request.user.id, role_level__gte = value).values() | Role.objects.filter(role_creater = 1, role_level__gte = value).values()
+                return Role.objects.filter(role_creater = self.request.user.id, role_level__gte = value) | Role.objects.filter(role_creater = 1, role_level__gte = value)
         if self.is_owner() == True:
-            return Role.objects.filter(role_creater = self.request.user.id).values() | Role.objects.filter(role_creater = 1).values()
+            return Role.objects.filter(role_creater = self.request.user.id) | Role.objects.filter(role_creater = 1)
         return super().get_queryset()
+
+    def get_serializer_class(self):
+        if self.action == "list" or self.action == "retrieve":
+            return role_serializers.RoleReadSerializer
+        return super().get_serializer_class()
 
     # def list(self, request, *args, **kwargs):
     #     user = self.request.user 
@@ -64,7 +69,7 @@ class RoleViewSet(BaseViewSet):
                 role_obj = Role.objects.get(pk = self.kwargs["pk"])
                 if role_obj.role_creater == 0:
                     raise ValidationError(errors.get_error(errors.ONLY_ADMIN))
-                if self.request.user.role.id != role_obj.role_creater:
+                if self.request.user.id != role_obj.role_creater:
                     raise ValidationError(errors.get_error(errors.ARE_NOT_OWNER))
                 owner_permissions = self.request.user.role.role_permissions.all()
                 owner_permission_ids = [ per.id for per in owner_permissions ] 

@@ -12,6 +12,8 @@ from bases.views import BaseViewSet
 from bases import errors, permissions as base_permissions
 from storage_accesses.api import serializers as storage_access_serializers
 from storage_accesses.models import StorageAccess
+from users.employee.serializers import UserRoleSerializer
+from roles.models import Role
 
 class StorageAccessViewSet(BaseViewSet):
     serializer_class = storage_access_serializers.StorageAccessSerializer
@@ -40,8 +42,27 @@ class StorageAccessViewSet(BaseViewSet):
             raise ValidationError(errors.get_error(errors.NOT_FOUND_EMPLOYEE))
         return employee.creater == self.request.user.id
 
+    def perform_destroy(self, instance):
+        employee = instance.access_employee
+        employee.role = Role.objects.get(pk = 10) # Back to guest
+        employee.save()
+        return super().perform_destroy(instance)
+
     def perform_create(self, serializer):
         user_id = self.request.data.get("access_employee", None)
+        role_id = self.request.data.get("role_id", None)
+        if role_id == None:
+            raise ValidationError(errors.get_error(errors.DO_NOT_ENOUGH_PARAMS))
+        try:
+            employee = User.objects.get(pk = user_id)
+        except:
+            raise ValidationError(errors.get_error(errors.NOT_FOUND_EMPLOYEE))
+        data = {
+            "role_id": role_id
+        }
+        user_serializer = UserRoleSerializer(instance=employee, data=data)
+        user_serializer.is_valid(raise_exception=True)
+        user_serializer.save()
         if user_id != None:
             if self.is_own_employee(user_id) == False:
                 raise ValidationError(errors.get_error(errors.EMPLOYEE_NOT_OWN))

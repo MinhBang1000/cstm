@@ -13,3 +13,11 @@ class RoleSerializer(serializers.ModelSerializer):
         fields = [ "id", "role_name", "role_permissions", "role_permission_instances" ,"role_creater" ]
         read_only_fields = [ "role_creater" ]
         extra_kwargs = { 'role_permissions': {'write_only': True} }
+
+class RoleReadSerializer(serializers.ModelSerializer):
+    role_permission_instances = PermissionReadSerializer(many=True, read_only=True, source="role_permissions")
+    class Meta:
+        model = Role 
+        fields = [ "id", "role_name", "role_permissions", "role_permission_instances" ,"role_creater","role_level" ]
+        read_only_fields = [ "role_creater" ]
+        extra_kwargs = { 'role_permissions': {'write_only': True} }

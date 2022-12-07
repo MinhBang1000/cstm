@@ -18,7 +18,7 @@ class PermissionViewSet(BaseViewSet):
         value = self.request.query_params.get("permission_level", None)
         if value != None:
             value = int(value)
-            if value not in [0,1,2]:
+            if value not in [0,1,2,3]:
                 raise ValidationError(errors.get_error(errors.INVALID_LEVEL))
             if self.is_owner() == True:
                 # if value == 0:
@@ -28,3 +28,8 @@ class PermissionViewSet(BaseViewSet):
         if self.is_owner() == True: # Except Company modify
             return self.request.user.role.role_permissions.filter(permission_level__gte = 1)
         return super().get_queryset()
+
+    def get_serializer_class(self):
+        if self.action == "list" or self.action == "retrieve":
+            return permission_serializers.PermissionReadSerializer
+        return super().get_serializer_class()

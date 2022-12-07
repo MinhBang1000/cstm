@@ -19,14 +19,35 @@ import random
 import string
 
 # Customize
-from users.employee.serializers import ProfileSerializer, ResetCodeSerializer, ForgotPasswordSerializer, MyTokenObtainPairSerializer, RegisterSerializer
+from users.employee.serializers import ProfileSerializer, ResetCodeSerializer, ForgotPasswordSerializer, MyTokenObtainPairSerializer,UserRoleSerializer, RegisterSerializer
 from users.models import ResetCode 
 from bases import errors, views as base_views
 from roles.models import Role
+from bases.permissions import IsAdminOrOwner
 
 
 class MyTokenObtainPairView(TokenObtainPairView):
     serializer_class = MyTokenObtainPairSerializer
+
+@api_view(["PUT"])
+@permission_classes([IsAdminOrOwner])
+def update_role(request):
+    # Not check owner yet
+    employee_id = request.data.get("employee_id", None)
+    role_id = request.data.get("role_id", None)
+    if employee_id == None or role_id == None:
+        raise ValidationError(errors.get_error(errors.DO_NOT_ENOUGH_PARAMS))
+    try:
+        user = get_user_model().objects.get(pk=request.data["employee_id"])
+    except:
+        raise ValidationError(errors.get_error(errors.NOT_FOUND_EMPLOYEE))
+    data = {
+        "role_id": request.data["role_id"]
+    }
+    serializer = UserRoleSerializer(instance=user, data=data)
+    serializer.is_valid(raise_exception=True)
+    serializer.save()
+    return Response(status=status.HTTP_200_OK)
 
 @api_view(["POST"])
 def create_admin(request):

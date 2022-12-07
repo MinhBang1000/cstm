@@ -15,4 +15,4 @@ class StorageAccessReadSerializer(serializers.ModelSerializer):
     class Meta:
         model = StorageAccess
         fields = [ "id","access_storage" ]
-        depth = 1
+        depth = 2
