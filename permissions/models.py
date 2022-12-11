@@ -7,7 +7,7 @@ class Permission(models.Model):
     permission_level = models.IntegerField(default = 3)
 
     def __str__(self) -> str:
-        return self.permission_name + "_" + self.permission_entity.entity_name
+        return self.permission_name + "_" + self.permission_entity.entity_name +"_"+ str(self.permission_level)
     
     def get_str(self)->str:
         return self.permission_name + "_" + self.permission_entity.entity_name
