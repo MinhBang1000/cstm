@@ -9,4 +9,4 @@ class Role(models.Model):
     role_level = models.IntegerField(default = 3)
 
     def __str__(self) -> str:
-        return self.role_name
+        return self.role_name + " / level: "+ str(self.role_level) +" / creater: "+str(self.role_creater)

@@ -33,3 +33,5 @@ class PermissionViewSet(BaseViewSet):
         if self.action == "list" or self.action == "retrieve":
             return permission_serializers.PermissionReadSerializer
         return super().get_serializer_class()
+
+    

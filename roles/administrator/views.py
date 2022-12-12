@@ -8,22 +8,35 @@ from bases.permissions import IsAdminOrOwner
 from bases import errors
 from roles.models import Role 
 from roles.administrator import serializers as role_serializers
+from permissions.models import Permission
 
 class RoleViewSet(BaseViewSet):
     serializer_class = role_serializers.RoleSerializer
     queryset = Role.objects.all()
     permission_classes = [ IsAdminOrOwner ]
-    filterset_fields = ["role_creater"]
-    # fix it
+
     def get_queryset(self):
         value = self.request.query_params.get("role_level", None)
         if value!=None:
             value = int(value)
             if self.is_owner() == True:
-                return Role.objects.filter(role_creater = self.request.user.id, role_level__gte = value) | Role.objects.filter(role_creater = 1, role_level__gte = value)
+                return Role.objects.filter(role_creater = self.request.user.id, role_level = value) | Role.objects.filter(role_creater = 1, role_level = value)
+                # Get standard role and own role which have specific level
+            return Role.objects.filter(role_creater = self.request.user.id, role_level = value)
         if self.is_owner() == True:
             return Role.objects.filter(role_creater = self.request.user.id) | Role.objects.filter(role_creater = 1)
-        return super().get_queryset()
+            # Get standard role and own role
+        return Role.objects.filter(role_creater = self.request.user.id)
+
+    # def get_queryset(self):
+    #     value = self.request.query_params.get("role_level", None)
+    #     if value!=None:
+    #         value = int(value)
+    #         if self.is_owner() == True:
+    #             return Role.objects.filter(role_creater = self.request.user.id, role_level__gte = value) | Role.objects.filter(role_creater = 1, role_level__gte = value)
+    #     if self.is_owner() == True:
+    #         return Role.objects.filter(role_creater = self.request.user.id) | Role.objects.filter(role_creater = 1)
+    #     return super().get_queryset()
 
     def get_serializer_class(self):
         if self.action == "list" or self.action == "retrieve":
@@ -44,8 +57,11 @@ class RoleViewSet(BaseViewSet):
 
     def perform_create(self, serializer):
         role_creater = 0
+        role_level = 3
         if self.request.data.get("role_creater", None) != None:
             role_creater = self.request.data.get("role_creater", None)
+        if self.request.data.get("role_level", None) != None:
+            role_level = self.request.data.get("role_level", None)
         if self.request.user != None:
             if self.request.user.role.id != 1 and self.request.user.role.role_creater == -1: # Là owner mới có quyền tạo role 
                 owner_permissions = self.request.user.role.role_permissions.all()
@@ -55,9 +71,16 @@ class RoleViewSet(BaseViewSet):
                     for id in wish_permissions:
                         if id not in owner_permission_ids:
                             raise ValidationError(errors.get_error(errors.DO_NOT_HAVE_PERMISSION))
-                serializer.save(role_creater = self.request.user.id)
+                        try:
+                            permission_obj = Permission.objects.get(pk = id)
+                        except:
+                            raise ValidationError(errors.get_error(errors.NOT_FOUND_PERMISSION))
+                        read_permission = Permission.objects.get(permission_name = "read", permission_entity = permission_obj.permission_entity)
+                        if read_permission.id not in wish_permissions:
+                            raise ValidationError(errors.get_error("You can't create a role without a read permission but has CUD permissions!"))
+                serializer.save(role_creater = self.request.user.id, role_level = role_level)
             elif self.request.user.role.id == 1: # Admin
-                serializer.save(role_creater = role_creater)
+                serializer.save(role_creater = role_creater, role_level = role_level)
             else:
                 raise ValidationError(errors.get_error(errors.ONLY_OWNER_ADMIN))
         else:
@@ -78,6 +101,13 @@ class RoleViewSet(BaseViewSet):
                     for id in wish_permissions:
                         if id not in owner_permission_ids:
                             raise ValidationError(errors.get_error(errors.DO_NOT_HAVE_PERMISSION))
+                        try:
+                            permission_obj = Permission.objects.get(pk = id)
+                        except:
+                            raise ValidationError(errors.get_error(errors.NOT_FOUND_PERMISSION))
+                        read_permission = Permission.objects.get(permission_name = "read", permission_entity = permission_obj.permission_entity)
+                        if read_permission.id not in wish_permissions:
+                            raise ValidationError(errors.get_error("You can't create a role without a read permission but has CUD permissions!"))
                 serializer.save()
             elif self.request.user.role.id == 1: # Admin
                 serializer.save()

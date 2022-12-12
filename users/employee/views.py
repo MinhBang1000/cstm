@@ -85,21 +85,20 @@ def register(request):
     except:
         raise ValidationError(errors.get_error(errors.INVALID_ROLE))
     # Check role if it not administrator or owner
-    if request.user.role.id not in [1,2]: # 
+    if request.user.role.role_creater != -1: # [1,2]  
         raise ValidationError(errors.get_error(errors.ONLY_OWNER_ADMIN_CREATE_USER))
     # Check if you are admin or owner
     if request.user.role.id == 1:
         pass
     elif request.user.role.role_creater < 0: # (owner_premium or owner_standard)
-        if role <= request.user.role.id:
-            raise ValidationError(errors.get_error(errors.CREATE_USER_WITH_ROLE_BELOW_YOU))
-        if role_obj.role_creater > 0:    
+        # Create user with only standard and your role
+        if role_obj.role_creater > 0:
             try:
                 creater = User.objects.get(pk = role_obj.role_creater)
             except:
                 raise ValidationError(errors.get_error(errors.NOT_FOUND_USER))
-            if creater != request.user:
-                raise ValidationError(errors.get_error(errors.CREATE_USER_WITH_ROLE_BELOW_YOU))
+            if creater != request.user and role_obj.role_creater != 1: # if not creater or not standard role
+                raise ValidationError(errors.get_error(errors.CREATE_USER_WITH_ROLE))
     # Check password and confirm follow authenication policy of django rest framework
     if data["password"] != data["password_confirm"]:
         raise ValidationError(errors.get_error(errors.PASSWORD_CONFIRM))
