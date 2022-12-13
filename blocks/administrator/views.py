@@ -86,10 +86,14 @@ def unblock_permission(request):
         raise ValidationError(errors.get_error(errors.CAN_NOT_DO_THIS_FEATURE))
     if user_obj.creater != blocker.id:
         raise ValidationError(errors.get_error(errors.ARE_NOT_OWNER))
-    block = Block.objects.filter(block_permission = permission_id, block_user = user_id).first()
-    if block == None:
+    r_block = Block.objects.filter(block_user = user_id,block_permission__permission_entity__entity_name = permission_obj.permission_entity.entity_name, block_permission__permission_name = "read").first()
+    if r_block != None and r_block.block_permission.permission_entity.entity_name == permission_obj.permission_entity.entity_name and permission_obj.permission_name != "read":
+        raise ValidationError(errors.get_error("You can't unblock this permission because you don't have read permission of this entity! Please unblock read permission first"))
+    blocks = Block.objects.filter(block_permission = permission_id, block_user = user_id)
+    if len(blocks) == 0:
         raise ValidationError(errors.get_error(errors.NOT_FOUND_BLOCK))
-    block.delete()
+    for block in blocks:
+        block.delete()
     return Response(status=status.HTTP_200_OK)
 
 

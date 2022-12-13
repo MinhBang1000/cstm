@@ -85,7 +85,7 @@ def register(request):
     except:
         raise ValidationError(errors.get_error(errors.INVALID_ROLE))
     # Check role if it not administrator or owner
-    if request.user.role.role_creater != -1: # [1,2]  
+    if request.user.role.role_creater not in [-1,0]: # [1,2]  
         raise ValidationError(errors.get_error(errors.ONLY_OWNER_ADMIN_CREATE_USER))
     # Check if you are admin or owner
     if request.user.role.id == 1:

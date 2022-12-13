@@ -74,3 +74,4 @@ AUTHENICATION_IN_IOT = "You can't do this because you don't have a account in IO
 NOT_FOUND_API = "Not found this API !"
 INVALID_LEVEL = "You cannot use this role or permission level !"
 DO_NOT_ENOUGH_PARAMS = "Your request are not enough value of params !"
+DO_NOT_HAVE_ENOUGH_PRIMARY_SENSOR = "Your storage don't have enough primary sensor!"

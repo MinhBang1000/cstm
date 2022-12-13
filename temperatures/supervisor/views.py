@@ -152,6 +152,11 @@ def get_temperatures(request, storage_id):
         raise ValidationError(errors.get_error(errors.DO_NOT_PERMISSION))
     if accept_permission.id in lst_block_permissions:
         raise ValidationError(errors.get_error(errors.DO_NOT_PERMISSION))
+
+    #Check primary sensors
+    if has_enough_primary_sensor(storage) == False:
+        raise ValidationError(errors.get_error(errors.DO_NOT_HAVE_ENOUGH_PRIMARY_SENSOR))
+
     # Read for total space which had saved in server
     reader = SpaceSaver()
     total_spaces = reader.local_read(storage.id)
@@ -229,6 +234,16 @@ def get_temperatures(request, storage_id):
     print("Runtime is : ", (time.time() - start_time))
     return Response(result)
 
+def has_enough_primary_sensor(storage):
+    sensors = Sensor.objects.filter(sensor_storage = storage.id)
+    # Check not found storage in previous function
+    count = 0
+    for sensor in sensors:
+        if sensor.sensor_x in [ storage.storage_length, 0 ] and sensor.sensor_y in [ storage.storage_width, 0 ] and sensor.sensor_z in [ storage.storage_height, 0 ]:
+            count += 1
+    return count == 8
+
+
 @api_view(["GET"])
 @permission_classes([base_permissions.IsAnyOne])
 def get_face_temperatures(request, storage_id):
@@ -253,6 +268,10 @@ def get_face_temperatures(request, storage_id):
                 access = BranchAccess.objects.filter( access_employee = user, access_branch = storage.storage_branch ).first()
             except:
                 raise ValidationError(errors.get_error(errors.YOU_NOT_IN_BRANCH_OR_STORAGE))
+
+    #Check primary sensors
+    if has_enough_primary_sensor(storage) == False:
+        raise ValidationError(errors.get_error(errors.DO_NOT_HAVE_ENOUGH_PRIMARY_SENSOR))
     
     # Read for total space which had saved in server
     reader = SpaceSaver()
