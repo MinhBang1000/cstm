@@ -53,9 +53,9 @@ class StorageViewSet(BaseViewSet):
 
     def check_permissions(self, request):
         # To check user permissions - do not review block permissions yet
-        self_check = self.is_permission(self.view_name)
-        if self_check == False:
-            raise ValidationError(errors.get_error(errors.DO_NOT_PERMISSION))        
+        # self_check = self.is_permission(self.view_name)
+        # if self_check == False:
+        #     raise ValidationError(errors.get_error(errors.DO_NOT_PERMISSION))        
         return super().check_permissions(request)
 
     def perform_create(self, serializer):

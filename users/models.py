@@ -45,8 +45,8 @@ class CustomUserManager(BaseUserManager):
 class CustomUser(AbstractUser):
     username = None
     email = models.EmailField(_('email address'), unique=True)
-    dob = models.DateField()
-    phone_no = models.CharField(max_length=10)
+    dob = models.DateField(null=True)
+    phone_no = models.CharField(max_length=10, null=True)
     role = models.ForeignKey(Role, on_delete=models.CASCADE,  blank=True, null=True, related_name="role_users")
     profile_code = models.CharField(max_length=64, unique=True, null=True, blank=True)
     creater = models.IntegerField(default = 0)

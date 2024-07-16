@@ -22,9 +22,47 @@ from bases.solving_code import StartThread
 # Show running time 
 import time
 import copy
+import numpy as np
 
 # Sklearn
 from sklearn.metrics import mean_squared_error
+
+
+# Research 
+
+def rmse_3d(array1, array2):
+    """
+    Calculates the Root Mean Squared Error between two 3D arrays.
+
+    Args:
+        array1: First 3D numpy array.
+        array2: Second 3D numpy array with the same shape as array1.
+
+    Returns:
+        The RMSE value (a scalar).
+    """
+    # Ensure arrays have the same shape
+    if array1.shape != array2.shape:
+        raise ValueError("Arrays must have the same shape")
+
+    # Calculate squared differences
+    squared_diffs = (array1 - array2) ** 2
+
+    # Mean of squared differences
+    mean_squared_diff = squared_diffs.mean()
+
+    # RMSE
+    rmse = np.sqrt(mean_squared_diff)
+    return rmse
+
+def export_npy_file(array):
+    np.save("my_array_3d.npy", temperature)
+    return True
+
+def import_npy_file(filename):
+    return np.load(filename)
+
+# Research
 
 @api_view(["GET"])
 @permission_classes([permissions.IsAdminUser])
@@ -148,10 +186,10 @@ def get_temperatures(request, storage_id):
     # Check permissions of user --> read_storage
     lst_block_permissions = [ block.block_permission.id for block in user.user_blocks.all() ] 
     accept_permission = user.role.role_permissions.filter(permission_name = "read", permission_entity__entity_name = "storage").first()
-    if accept_permission == None:
-        raise ValidationError(errors.get_error(errors.DO_NOT_PERMISSION))
-    if accept_permission.id in lst_block_permissions:
-        raise ValidationError(errors.get_error(errors.DO_NOT_PERMISSION))
+    # if accept_permission == None:
+    #     raise ValidationError(errors.get_error(errors.DO_NOT_PERMISSION))
+    # if accept_permission.id in lst_block_permissions:
+    #     raise ValidationError(errors.get_error(errors.DO_NOT_PERMISSION))
 
     #Check primary sensors
     if has_enough_primary_sensor(storage) == False:
@@ -231,6 +269,12 @@ def get_temperatures(request, storage_id):
         "maximun_delta_temperature": max_delta,
         "temperatures": interpolation.first_interpolation
     }
+    
+    # Export interpolation result
+    temperature_data_export = interpolation.first_interpolation
+    converted_temperature_data_export = np.array(temperature_data_export)
+
+
     print("Runtime is : ", (time.time() - start_time))
     return Response(result)
 
