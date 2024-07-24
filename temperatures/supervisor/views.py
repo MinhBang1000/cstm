@@ -56,11 +56,8 @@ def rmse_3d(array1, array2):
     return rmse
 
 def export_npy_file(array):
-    np.save("my_array_3d.npy", temperature)
+    np.save("temperature_data.npy", array)
     return True
-
-def import_npy_file(filename):
-    return np.load(filename)
 
 # Research
 
@@ -273,7 +270,7 @@ def get_temperatures(request, storage_id):
     # Export interpolation result
     temperature_data_export = interpolation.first_interpolation
     converted_temperature_data_export = np.array(temperature_data_export)
-
+    export_npy_file(converted_temperature_data_export)
 
     print("Runtime is : ", (time.time() - start_time))
     return Response(result)

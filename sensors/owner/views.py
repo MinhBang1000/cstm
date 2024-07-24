@@ -71,7 +71,7 @@ class SensorViewSet(BaseViewSet):
     
     # requests.post('https://httpbin.org/post', data={'key':'value'})
     def create_sensor_iot_lab(self, username, password, data):
-        url = 'https://fake-sensors.herokuapp.com/sensors/'
+        url = 'http://127.0.0.2:8001/sensors/'
         r = requests.post(url, data, auth=(username, password))
         if r.status_code != 201:
             raise ValidationError(errors.get_error(errors.CAN_NOT_PERFORM))
@@ -79,7 +79,7 @@ class SensorViewSet(BaseViewSet):
 
     # requests.delete('https://httpbin.org/delete')
     def delete_sensor_iot_lab(self, id, username, password):
-        url = 'https://fake-sensors.herokuapp.com/sensors/'+str(id)+"/"
+        url = 'http://127.0.0.2:8001/sensors/'+str(id)+"/"
         r = requests.delete(url, auth=(username, password))
         print(r.status_code)
         if r.status_code != 204:
@@ -87,7 +87,7 @@ class SensorViewSet(BaseViewSet):
 
     # requests.put('https://httpbin.org/put', data={'key':'value'})
     def update_sensor_iot_lab(self, id, username, password, data):
-        url = 'https://fake-sensors.herokuapp.com/sensors/'+str(id)+"/"
+        url = 'http://127.0.0.2:8001/sensors/'+str(id)+"/"
         r = requests.put(url, data, auth=(username, password))
         if r.status_code != 200:
             raise ValidationError(errors.get_error(errors.CAN_NOT_PERFORM))
